@@ -118,7 +118,7 @@ int main() {
 
     // --- LEVEL SELECTION ---
     
-    // Tło dla level selection (trochę ciemniejsze)
+    // Tło dla wyboru poziomu (trochę ciemniejsze)
     sf::RectangleShape levelSelectBg(sf::Vector2f(600.f, 400.f));
     levelSelectBg.setFillColor(sf::Color(0, 0, 0, 200));
     levelSelectBg.setOutlineColor(sf::Color(100, 100, 255));
