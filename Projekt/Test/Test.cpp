@@ -116,7 +116,57 @@ int main() {
     btnExit.setOrigin(sf::Vector2f(125.f, 30.f));
     btnExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
 
+    // --- ELEMENTY LEVEL SELECT ---
+    
+    // Tło dla level select (trochę ciemniejsze)
+    sf::RectangleShape levelSelectBg(sf::Vector2f(600.f, 400.f));
+    levelSelectBg.setFillColor(sf::Color(0, 0, 0, 200));
+    levelSelectBg.setOutlineColor(sf::Color(100, 100, 255));
+    levelSelectBg.setOutlineThickness(3.f);
+    levelSelectBg.setOrigin(sf::Vector2f(300.f, 200.f));
+    levelSelectBg.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f));
 
+    // Przycisk powrotu do menu
+    sf::RectangleShape btnBackToMenu(sf::Vector2f(200.f, 50.f));
+    btnBackToMenu.setTexture(&texBtnExit);  // Tymczasowo używamy tej samej tekstury
+    btnBackToMenu.setFillColor(sf::Color::White);
+    btnBackToMenu.setOrigin(sf::Vector2f(100.f, 25.f));
+    btnBackToMenu.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 150.f));
+
+    // Poziomy 1-6
+    std::vector<sf::RectangleShape> levelButtons;
+    for (int i = 0; i < 6; ++i) {
+        sf::RectangleShape levelBtn(sf::Vector2f(80.f, 60.f));
+        levelBtn.setFillColor(sf::Color(50 + i * 30, 100, 200));
+        levelBtn.setOutlineColor(sf::Color::White);
+        levelBtn.setOutlineThickness(2.f);
+        levelBtn.setOrigin(sf::Vector2f(40.f, 30.f));
+        
+        // Ustawienie w siatce 2x3
+        int col = i % 2;
+        int row = i / 2;
+        levelBtn.setPosition(sf::Vector2f(
+            szerokosc / 2.f - 100.f + col * 200.f,
+            wysokosc / 2.f - 80.f + row * 80.f
+        ));
+        
+        // Tekst numeru poziomu
+        sf::Text levelText;
+        levelText.setFont(font);
+        levelText.setString(std::to_string(i + 1));
+        levelText.setCharacterSize(24);
+        levelText.setFillColor(sf::Color::White);
+        levelText.setOrigin(sf::Vector2f(
+            levelText.getLocalBounds().width / 2.f,
+            levelText.getLocalBounds().height / 2.f
+        ));
+        levelText.setPosition(levelBtn.getPosition());
+        
+        // Zapisujemy tekst jako dane użytkownika 
+        levelBtn.setUserData(new sf::Text(levelText));
+        
+        levelButtons.push_back(levelBtn);
+    }
     // --- ELEMENTY PAUZY ---
 
     // Przyciemnienie ekranu
