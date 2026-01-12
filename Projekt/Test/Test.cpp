@@ -15,7 +15,7 @@ int main() {
     const unsigned int szerokosc = 800;
     const unsigned int wysokosc = 600;
 
-    sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "AGHnoid");
+    sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "Arkanoid z Menu - SFML 3");
     window.setFramerateLimit(60);
 
     Stan aktualnyStan = Stan::MENU;
@@ -40,7 +40,7 @@ int main() {
     ));
 
     // ==================================================
-    // --- ANIMOWANY TYTUŁ (SPRITESHEET) ---
+    // --- ANIMOWANY TYTUŁ ---
     // ==================================================
     sf::Texture titleTexture;
     if (!titleTexture.loadFromFile("Sprites/title1.png")) {
@@ -52,7 +52,6 @@ int main() {
     int frameHeight = titleTexture.getSize().y;
 
     sf::Sprite titleSprite(titleTexture);
-
     titleSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(frameWidth, frameHeight)));
     titleSprite.setOrigin(sf::Vector2f(frameWidth / 2.f, frameHeight / 2.f));
     titleSprite.setPosition(sf::Vector2f(szerokosc / 2.f, 100.f));
@@ -60,8 +59,6 @@ int main() {
 
     sf::Clock titleClock;
     int currentTitleFrame = 0;
-
-    // ==================================================
 
     // --- AUDIO ---
     sf::SoundBuffer hitBuffer;
@@ -83,7 +80,7 @@ int main() {
     }
 
     // ==================================================
-    // --- ELEMENTY PRZYCISKÓW (MENU & PAUSE) ---
+    // --- ELEMENTY PRZYCISKÓW ---
     // ==================================================
 
     // 1. Ładowanie tekstur
@@ -93,24 +90,26 @@ int main() {
     sf::Texture texBtnExit;
     if (!texBtnExit.loadFromFile("Sprites/btn_exit.png")) { return -1; }
 
-    // NOWA TEKSTURA DO PAUZY (Wznów)
     sf::Texture texBtnResume;
     if (!texBtnResume.loadFromFile("Sprites/btn_resume.png")) { return -1; }
+
+    // NOWA TEKSTURA RESTART
+    sf::Texture texBtnRestart;
+    if (!texBtnRestart.loadFromFile("Sprites/btn_restart.png")) { return -1; }
 
     texBtnPlay.setSmooth(true);
     texBtnExit.setSmooth(true);
     texBtnResume.setSmooth(true);
+    texBtnRestart.setSmooth(true);
 
     // --- PRZYCISKI MENU GŁÓWNEGO ---
 
-    // Przycisk GRAJ
     sf::RectangleShape btnPlay(sf::Vector2f(350.f, 60.f));
     btnPlay.setTexture(&texBtnPlay);
     btnPlay.setFillColor(sf::Color::White);
     btnPlay.setOrigin(sf::Vector2f(175.f, 30.f));
     btnPlay.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 30.f));
 
-    // Przycisk WYJSCIE (Menu Główne)
     sf::RectangleShape btnExit(sf::Vector2f(250.f, 60.f));
     btnExit.setTexture(&texBtnExit);
     btnExit.setFillColor(sf::Color::White);
@@ -122,21 +121,28 @@ int main() {
 
     // Przyciemnienie ekranu
     sf::RectangleShape dimmer(sf::Vector2f((float)szerokosc, (float)wysokosc));
-    dimmer.setFillColor(sf::Color(0, 0, 0, 150)); // Półprzezroczysty czarny
+    dimmer.setFillColor(sf::Color(0, 0, 0, 150));
 
-    // Przycisk WZNÓW (PAUZA)
-    sf::RectangleShape btnResume(sf::Vector2f(250.f, 60.f)); // Rozmiar przykładowy
+    // Przycisk WZNÓW (PAUZA) - przesunięty wyżej
+    sf::RectangleShape btnResume(sf::Vector2f(250.f, 60.f));
     btnResume.setTexture(&texBtnResume);
     btnResume.setFillColor(sf::Color::White);
     btnResume.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnResume.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 40.f));
+    btnResume.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 80.f)); // Wyżej
 
-    // Przycisk WYJŚCIE DO MENU (PAUZA) - używamy tej samej tekstury co btnExit
+    // Przycisk RESTART (PAUZA) - na środku
+    sf::RectangleShape btnRestart(sf::Vector2f(250.f, 60.f));
+    btnRestart.setTexture(&texBtnRestart);
+    btnRestart.setFillColor(sf::Color::White);
+    btnRestart.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f)); // Środek
+
+    // Przycisk WYJŚCIE DO MENU (PAUZA) - przesunięty niżej
     sf::RectangleShape btnPauseExit(sf::Vector2f(250.f, 60.f));
     btnPauseExit.setTexture(&texBtnExit);
     btnPauseExit.setFillColor(sf::Color::White);
     btnPauseExit.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnPauseExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 40.f));
+    btnPauseExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 80.f)); // Niżej
 
 
     // --- GRACZ I OBIEKTY ---
@@ -204,7 +210,7 @@ int main() {
 
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-        // --- AKTUALIZACJA ANIMACJI TYTUŁU (Tylko w Menu) ---
+        // Animacja tytułu (Tylko w Menu)
         if (aktualnyStan == Stan::MENU) {
             if (titleClock.getElapsedTime().asSeconds() >= 1.0f) {
                 currentTitleFrame = (currentTitleFrame + 1) % 2;
@@ -220,16 +226,16 @@ int main() {
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) window.close();
 
-            // OBSŁUGA KLAWISZA ESCAPE (PAUZA)
+            // PAUZA (ESC)
             if (event->is<sf::Event::KeyPressed>()) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
                     if (aktualnyStan == Stan::GRA) {
                         aktualnyStan = Stan::PAUSE;
-                        gameMusic.pause(); // Zatrzymaj muzykę
+                        gameMusic.pause();
                     }
                     else if (aktualnyStan == Stan::PAUSE) {
                         aktualnyStan = Stan::GRA;
-                        gameMusic.play(); // Wznów muzykę
+                        gameMusic.play();
                     }
                 }
             }
@@ -237,14 +243,12 @@ int main() {
             if (aktualnyStan == Stan::MENU) {
                 if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseEvent->button == sf::Mouse::Button::Left) {
-
                         if (btnPlay.getGlobalBounds().contains(mousePos)) {
                             menuMusic.stop();
                             gameMusic.play();
                             aktualnyStan = Stan::GRA;
                             resetGry();
                         }
-
                         if (btnExit.getGlobalBounds().contains(mousePos)) {
                             window.close();
                         }
@@ -258,13 +262,20 @@ int main() {
                 }
             }
             else if (aktualnyStan == Stan::PAUSE) {
-                // OBSŁUGA KLIKNIĘĆ W PAUZIE
                 if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseEvent->button == sf::Mouse::Button::Left) {
 
                         // Kliknięcie WZNÓW
                         if (btnResume.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::GRA;
+                            gameMusic.play();
+                        }
+
+                        // Kliknięcie RESTART
+                        if (btnRestart.getGlobalBounds().contains(mousePos)) {
+                            resetGry();
+                            aktualnyStan = Stan::GRA;
+                            gameMusic.stop(); // Restart muzyki
                             gameMusic.play();
                         }
 
@@ -279,11 +290,10 @@ int main() {
             }
         }
 
-        // --- LOGIKA HOVER (PODŚWIETLANIE) ---
+        // --- HOVER LOGIC ---
 
         // 1. MENU
         if (aktualnyStan == Stan::MENU) {
-            // GRAJ
             if (btnPlay.getGlobalBounds().contains(mousePos)) {
                 btnPlay.setFillColor(sf::Color(220, 220, 220));
                 btnPlay.setScale(sf::Vector2f(1.05f, 1.05f));
@@ -292,8 +302,6 @@ int main() {
                 btnPlay.setFillColor(sf::Color::White);
                 btnPlay.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-
-            // WYJSCIE
             if (btnExit.getGlobalBounds().contains(mousePos)) {
                 btnExit.setFillColor(sf::Color(220, 220, 220));
                 btnExit.setScale(sf::Vector2f(1.05f, 1.05f));
@@ -304,7 +312,7 @@ int main() {
             }
         }
 
-        // 2. PAUZA (Hover)
+        // 2. PAUZA
         if (aktualnyStan == Stan::PAUSE) {
             // WZNÓW
             if (btnResume.getGlobalBounds().contains(mousePos)) {
@@ -315,8 +323,16 @@ int main() {
                 btnResume.setFillColor(sf::Color::White);
                 btnResume.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-
-            // WYJŚCIE DO MENU
+            // RESTART
+            if (btnRestart.getGlobalBounds().contains(mousePos)) {
+                btnRestart.setFillColor(sf::Color(220, 220, 220));
+                btnRestart.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnRestart.setFillColor(sf::Color::White);
+                btnRestart.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            // WYJŚCIE
             if (btnPauseExit.getGlobalBounds().contains(mousePos)) {
                 btnPauseExit.setFillColor(sf::Color(220, 220, 220));
                 btnPauseExit.setScale(sf::Vector2f(1.05f, 1.05f));
@@ -327,8 +343,7 @@ int main() {
             }
         }
 
-        // --- LOGIKA STANU GRA ---
-        // Wykonuje się tylko gdy NIE ma pauzy
+        // --- LOGIKA GRY (Tylko gdy brak pauzy) ---
         if (aktualnyStan == Stan::GRA) {
             float ruchX = 0.f;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) ruchX = -8.f;
@@ -401,16 +416,16 @@ int main() {
             window.draw(kulka);
         }
         else if (aktualnyStan == Stan::PAUSE) {
-            
+            // Rysujemy grę pod spodem
             window.draw(paletka);
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             window.draw(kulka);
 
-            // Rysujemy przyciemnienie
             window.draw(dimmer);
 
-            // Rysujemy przyciski pauzy (bez napisów)
+            // Rysujemy 3 przyciski
             window.draw(btnResume);
+            window.draw(btnRestart);
             window.draw(btnPauseExit);
         }
 
