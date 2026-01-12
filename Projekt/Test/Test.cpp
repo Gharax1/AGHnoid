@@ -116,9 +116,9 @@ int main() {
     btnExit.setOrigin(sf::Vector2f(125.f, 30.f));
     btnExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
 
-    // --- ELEMENTY LEVEL SELECT ---
+    // --- LEVEL SELECTION ---
     
-    // Tło dla level select (trochę ciemniejsze)
+    // Tło dla level selection (trochę ciemniejsze)
     sf::RectangleShape levelSelectBg(sf::Vector2f(600.f, 400.f));
     levelSelectBg.setFillColor(sf::Color(0, 0, 0, 200));
     levelSelectBg.setOutlineColor(sf::Color(100, 100, 255));
