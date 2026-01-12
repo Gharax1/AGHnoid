@@ -15,13 +15,12 @@ int main() {
     const unsigned int szerokosc = 800;
     const unsigned int wysokosc = 600;
 
-    sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "Arkanoid z Menu - SFML 3");
+    sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "AGHnoid");
     window.setFramerateLimit(60);
 
     Stan aktualnyStan = Stan::MENU;
 
     // --- CZCIONKA ---
-    // (Zostawiamy ładowanie, bo może się przydać do licznika punktów lub GameOver, ale usuwamy z przycisków)
     sf::Font font;
     if (!font.openFromFile("Fonts/arial.ttf")) {
         return -1;
@@ -54,7 +53,6 @@ int main() {
 
     sf::Sprite titleSprite(titleTexture);
 
-    // W SFML 3 IntRect wymaga sf::Vector2i
     titleSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(frameWidth, frameHeight)));
     titleSprite.setOrigin(sf::Vector2f(frameWidth / 2.f, frameHeight / 2.f));
     titleSprite.setPosition(sf::Vector2f(szerokosc / 2.f, 100.f));
@@ -403,7 +401,7 @@ int main() {
             window.draw(kulka);
         }
         else if (aktualnyStan == Stan::PAUSE) {
-            // W pauzie najpierw rysujemy grę pod spodem
+            
             window.draw(paletka);
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             window.draw(kulka);
