@@ -481,5 +481,12 @@ int main() {
 
         window.display();
     }
+        // Zwolnienie pamięci dla tekstów przycisków poziomów
+    for (auto& btn : levelButtons) {
+        sf::Text* textPtr = (sf::Text*)btn.getUserData();
+        if (textPtr) {
+            delete textPtr;
+        }
+    }
     return 0;
 }
