@@ -6,7 +6,7 @@
 #include <vector>
 
 // Definiujemy możliwe stany gry
-enum class Stan { MENU, GRA, LEVEL };
+enum class Stan { MENU, GRA, LEVEL, PAUSE };
 
 // Licznik punktów
 int points = 0;
@@ -21,6 +21,7 @@ int main() {
     Stan aktualnyStan = Stan::MENU;
 
     // --- CZCIONKA ---
+    // (Zostawiamy ładowanie, bo może się przydać do licznika punktów lub GameOver, ale usuwamy z przycisków)
     sf::Font font;
     if (!font.openFromFile("Fonts/arial.ttf")) {
         return -1;
@@ -43,33 +44,24 @@ int main() {
     // --- ANIMOWANY TYTUŁ (SPRITESHEET) ---
     // ==================================================
     sf::Texture titleTexture;
-    // Ładujemy obrazek tytułu (spritesheet: 2 klatki obok siebie)
     if (!titleTexture.loadFromFile("Sprites/title1.png")) {
         return -1;
     }
     titleTexture.setSmooth(true);
 
-    // Obliczamy wymiary jednej klatki
-    // Skoro są 2 kolumny, dzielimy szerokość całej tekstury przez 2
     int frameWidth = titleTexture.getSize().x / 2;
     int frameHeight = titleTexture.getSize().y;
 
     sf::Sprite titleSprite(titleTexture);
 
-    // Ustawiamy początkowy wycinek (pierwsza klatka: x=0, y=0)
     // W SFML 3 IntRect wymaga sf::Vector2i
     titleSprite.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(frameWidth, frameHeight)));
-
-    // Ustawiamy origin na środek KLATKI (nie całej tekstury)
     titleSprite.setOrigin(sf::Vector2f(frameWidth / 2.f, frameHeight / 2.f));
-
-    // Pozycja: Góra ekranu (np. Y = 100)
     titleSprite.setPosition(sf::Vector2f(szerokosc / 2.f, 100.f));
     titleSprite.setScale(sf::Vector2f(0.5f, 0.5f));
 
-    // Zmienne do animacji
-    sf::Clock titleClock;       // Mierzy czas
-    int currentTitleFrame = 0;  // 0 = pierwsza klatka, 1 = druga klatka
+    sf::Clock titleClock;
+    int currentTitleFrame = 0;
 
     // ==================================================
 
@@ -93,49 +85,61 @@ int main() {
     }
 
     // ==================================================
-    // --- ELEMENTY PRZYCISKÓW MENU ---
+    // --- ELEMENTY PRZYCISKÓW (MENU & PAUSE) ---
     // ==================================================
 
-    // 1. Ładowanie tekstur przycisków (NOWOŚĆ)
+    // 1. Ładowanie tekstur
     sf::Texture texBtnPlay;
     if (!texBtnPlay.loadFromFile("Sprites/btn_play.png")) { return -1; }
 
     sf::Texture texBtnExit;
     if (!texBtnExit.loadFromFile("Sprites/btn_exit.png")) { return -1; }
 
-    // Włączenie wygładzania dla ładniejszego wyglądu przy skalowaniu
+    // NOWA TEKSTURA DO PAUZY (Wznów)
+    sf::Texture texBtnResume;
+    if (!texBtnResume.loadFromFile("Sprites/btn_resume.png")) { return -1; }
+
     texBtnPlay.setSmooth(true);
     texBtnExit.setSmooth(true);
+    texBtnResume.setSmooth(true);
 
-    // 2. Konfiguracja przycisku GRAJ
+    // --- PRZYCISKI MENU GŁÓWNEGO ---
+
+    // Przycisk GRAJ
     sf::RectangleShape btnPlay(sf::Vector2f(350.f, 60.f));
-    btnPlay.setTexture(&texBtnPlay);          // <--- Przypisanie tekstury
-    btnPlay.setFillColor(sf::Color::White);   // <--- Kolor Biały (żeby widać było teksturę)
-
+    btnPlay.setTexture(&texBtnPlay);
+    btnPlay.setFillColor(sf::Color::White);
     btnPlay.setOrigin(sf::Vector2f(175.f, 30.f));
     btnPlay.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 30.f));
 
-    sf::Text txtPlay(font);
-    txtPlay.setFillColor(sf::Color::White);
-
-    sf::FloatRect boundsPlay = txtPlay.getLocalBounds();
-    txtPlay.setOrigin(sf::Vector2f(boundsPlay.size.x / 2.f, boundsPlay.size.y / 2.f));
-    txtPlay.setPosition(sf::Vector2f(btnPlay.getPosition().x, btnPlay.getPosition().y - 5.f));
-
-    // 3. Konfiguracja przycisku WYJSCIE
+    // Przycisk WYJSCIE (Menu Główne)
     sf::RectangleShape btnExit(sf::Vector2f(250.f, 60.f));
-    btnExit.setTexture(&texBtnExit);          // <--- Przypisanie tekstury
-    btnExit.setFillColor(sf::Color::White);   // <--- Kolor Biały
-
+    btnExit.setTexture(&texBtnExit);
+    btnExit.setFillColor(sf::Color::White);
     btnExit.setOrigin(sf::Vector2f(125.f, 30.f));
     btnExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
 
-    sf::Text txtExit(font);
-    txtExit.setFillColor(sf::Color::White);
 
-    sf::FloatRect boundsExit = txtExit.getLocalBounds();
-    txtExit.setOrigin(sf::Vector2f(boundsExit.size.x / 2.f, boundsExit.size.y / 2.f));
-    txtExit.setPosition(sf::Vector2f(btnExit.getPosition().x, btnExit.getPosition().y - 5.f));
+    // --- ELEMENTY PAUZY ---
+
+    // Przyciemnienie ekranu
+    sf::RectangleShape dimmer(sf::Vector2f((float)szerokosc, (float)wysokosc));
+    dimmer.setFillColor(sf::Color(0, 0, 0, 150)); // Półprzezroczysty czarny
+
+    // Przycisk WZNÓW (PAUZA)
+    sf::RectangleShape btnResume(sf::Vector2f(250.f, 60.f)); // Rozmiar przykładowy
+    btnResume.setTexture(&texBtnResume);
+    btnResume.setFillColor(sf::Color::White);
+    btnResume.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnResume.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 40.f));
+
+    // Przycisk WYJŚCIE DO MENU (PAUZA) - używamy tej samej tekstury co btnExit
+    sf::RectangleShape btnPauseExit(sf::Vector2f(250.f, 60.f));
+    btnPauseExit.setTexture(&texBtnExit);
+    btnPauseExit.setFillColor(sf::Color::White);
+    btnPauseExit.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnPauseExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 40.f));
+
 
     // --- GRACZ I OBIEKTY ---
     sf::Texture kulkaTexture;
@@ -202,24 +206,35 @@ int main() {
 
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-        // --- AKTUALIZACJA ANIMACJI TYTUŁU ---
+        // --- AKTUALIZACJA ANIMACJI TYTUŁU (Tylko w Menu) ---
         if (aktualnyStan == Stan::MENU) {
             if (titleClock.getElapsedTime().asSeconds() >= 1.0f) {
                 currentTitleFrame = (currentTitleFrame + 1) % 2;
-
                 int left = currentTitleFrame * frameWidth;
-
                 titleSprite.setTextureRect(sf::IntRect(
                     sf::Vector2i(left, 0),
                     sf::Vector2i(frameWidth, frameHeight)
                 ));
-
                 titleClock.restart();
             }
         }
 
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) window.close();
+
+            // OBSŁUGA KLAWISZA ESCAPE (PAUZA)
+            if (event->is<sf::Event::KeyPressed>()) {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
+                    if (aktualnyStan == Stan::GRA) {
+                        aktualnyStan = Stan::PAUSE;
+                        gameMusic.pause(); // Zatrzymaj muzykę
+                    }
+                    else if (aktualnyStan == Stan::PAUSE) {
+                        aktualnyStan = Stan::GRA;
+                        gameMusic.play(); // Wznów muzykę
+                    }
+                }
+            }
 
             if (aktualnyStan == Stan::MENU) {
                 if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
@@ -244,17 +259,39 @@ int main() {
                     czyW_Ruchu = true;
                 }
             }
+            else if (aktualnyStan == Stan::PAUSE) {
+                // OBSŁUGA KLIKNIĘĆ W PAUZIE
+                if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+                    if (mouseEvent->button == sf::Mouse::Button::Left) {
+
+                        // Kliknięcie WZNÓW
+                        if (btnResume.getGlobalBounds().contains(mousePos)) {
+                            aktualnyStan = Stan::GRA;
+                            gameMusic.play();
+                        }
+
+                        // Kliknięcie WYJŚCIE (do menu)
+                        if (btnPauseExit.getGlobalBounds().contains(mousePos)) {
+                            aktualnyStan = Stan::MENU;
+                            gameMusic.stop();
+                            menuMusic.play();
+                        }
+                    }
+                }
+            }
         }
 
-        // --- LOGIKA STANU MENU (HOVER) ---
+        // --- LOGIKA HOVER (PODŚWIETLANIE) ---
+
+        // 1. MENU
         if (aktualnyStan == Stan::MENU) {
             // GRAJ
             if (btnPlay.getGlobalBounds().contains(mousePos)) {
-                btnPlay.setFillColor(sf::Color(220, 220, 220)); // Lekkie przyciemnienie
+                btnPlay.setFillColor(sf::Color(220, 220, 220));
                 btnPlay.setScale(sf::Vector2f(1.05f, 1.05f));
             }
             else {
-                btnPlay.setFillColor(sf::Color::White); // Pełna widoczność tekstury
+                btnPlay.setFillColor(sf::Color::White);
                 btnPlay.setScale(sf::Vector2f(1.0f, 1.0f));
             }
 
@@ -269,7 +306,31 @@ int main() {
             }
         }
 
+        // 2. PAUZA (Hover)
+        if (aktualnyStan == Stan::PAUSE) {
+            // WZNÓW
+            if (btnResume.getGlobalBounds().contains(mousePos)) {
+                btnResume.setFillColor(sf::Color(220, 220, 220));
+                btnResume.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnResume.setFillColor(sf::Color::White);
+                btnResume.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+
+            // WYJŚCIE DO MENU
+            if (btnPauseExit.getGlobalBounds().contains(mousePos)) {
+                btnPauseExit.setFillColor(sf::Color(220, 220, 220));
+                btnPauseExit.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnPauseExit.setFillColor(sf::Color::White);
+                btnPauseExit.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+        }
+
         // --- LOGIKA STANU GRA ---
+        // Wykonuje się tylko gdy NIE ma pauzy
         if (aktualnyStan == Stan::GRA) {
             float ruchX = 0.f;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) ruchX = -8.f;
@@ -333,17 +394,26 @@ int main() {
 
         if (aktualnyStan == Stan::MENU) {
             window.draw(titleSprite);
-
             window.draw(btnPlay);
-            window.draw(txtPlay); 
-
             window.draw(btnExit);
-            window.draw(txtExit); 
         }
-        else {
+        else if (aktualnyStan == Stan::GRA) {
             window.draw(paletka);
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             window.draw(kulka);
+        }
+        else if (aktualnyStan == Stan::PAUSE) {
+            // W pauzie najpierw rysujemy grę pod spodem
+            window.draw(paletka);
+            for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
+            window.draw(kulka);
+
+            // Rysujemy przyciemnienie
+            window.draw(dimmer);
+
+            // Rysujemy przyciski pauzy (bez napisów)
+            window.draw(btnResume);
+            window.draw(btnPauseExit);
         }
 
         window.display();
