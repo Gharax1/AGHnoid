@@ -1,0 +1,13 @@
+# Ignoruj pliki tymczasowe Visual Studio
+.vs/
+*.ipch
+*.aps
+*.user
+*.exe
+*.dll
+*.obj
+*.pdb
+Debug/
+Release/
+x64/
+x86/
