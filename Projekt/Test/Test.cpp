@@ -10,6 +10,7 @@ enum class Stan { MENU, GRA, LEVEL, PAUSE };
 
 // Licznik punktów
 int points = 0;
+int aktualnyPoziom = 1; // 1, 2 lub 3
 
 int main() {
     const unsigned int szerokosc = 800;
@@ -97,10 +98,16 @@ int main() {
     sf::Texture texBtnRestart;
     if (!texBtnRestart.loadFromFile("Sprites/btn_restart.png")) { return -1; }
 
+    // TEKSTURA WYBORU POZIOMU
+       sf::Texture texBtnLevelSelect;
+    if (!texBtnLevelSelect.loadFromFile("Sprites/btn_levels.png")) {
+        texBtnLevelSelect = texBtnPlay;
+        
     texBtnPlay.setSmooth(true);
     texBtnExit.setSmooth(true);
     texBtnResume.setSmooth(true);
     texBtnRestart.setSmooth(true);
+    texBtnLevelSelect.setSmooth(true)
 
     // --- PRZYCISKI MENU GŁÓWNEGO ---
 
@@ -108,65 +115,54 @@ int main() {
     btnPlay.setTexture(&texBtnPlay);
     btnPlay.setFillColor(sf::Color::White);
     btnPlay.setOrigin(sf::Vector2f(175.f, 30.f));
-    btnPlay.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 30.f));
+    btnPlay.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 50.f));
+        
+    sf::RectangleShape btnLevelSelect(sf::Vector2f(350.f, 60.f));
+    btnLevelSelect.setTexture(&texBtnLevelSelect);
+    btnLevelSelect.setFillColor(sf::Color::White);
+    btnLevelSelect.setOrigin(sf::Vector2f(175.f, 30.f));
+    btnLevelSelect.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 10.f));
 
     sf::RectangleShape btnExit(sf::Vector2f(250.f, 60.f));
     btnExit.setTexture(&texBtnExit);
     btnExit.setFillColor(sf::Color::White);
     btnExit.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
+    btnExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 70.f));
 
-    // --- LEVEL SELECTION ---
-    
-    // Tło dla wyboru poziomu (trochę ciemniejsze)
-    sf::RectangleShape levelSelectBg(sf::Vector2f(600.f, 400.f));
-    levelSelectBg.setFillColor(sf::Color(0, 0, 0, 200));
-    levelSelectBg.setOutlineColor(sf::Color(100, 100, 255));
-    levelSelectBg.setOutlineThickness(3.f);
-    levelSelectBg.setOrigin(sf::Vector2f(300.f, 200.f));
-    levelSelectBg.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f));
+    // --- ELEMENTY WYBORU POZIOMU ---
 
-    // Przycisk powrotu do menu
-    sf::RectangleShape btnBackToMenu(sf::Vector2f(200.f, 50.f));
-    btnBackToMenu.setTexture(&texBtnExit);  // Tymczasowo używamy tej samej tekstury
-    btnBackToMenu.setFillColor(sf::Color::White);
-    btnBackToMenu.setOrigin(sf::Vector2f(100.f, 25.f));
-    btnBackToMenu.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 150.f));
+// Tło ekranu wyboru poziomu
+sf::RectangleShape poziomSelectBg(sf::Vector2f(500.f, 300.f));
+poziomSelectBg.setFillColor(sf::Color(0, 0, 0, 180));
+poziomSelectBg.setOutlineColor(sf::Color(100, 200, 255));
+poziomSelectBg.setOutlineThickness(3.f);
+poziomSelectBg.setOrigin(sf::Vector2f(250.f, 150.f));
+poziomSelectBg.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f));
 
-    // Poziomy 1-6
-    std::vector<sf::RectangleShape> levelButtons;
-    for (int i = 0; i < 6; ++i) {
-        sf::RectangleShape levelBtn(sf::Vector2f(80.f, 60.f));
-        levelBtn.setFillColor(sf::Color(50 + i * 30, 100, 200));
-        levelBtn.setOutlineColor(sf::Color::White);
-        levelBtn.setOutlineThickness(2.f);
-        levelBtn.setOrigin(sf::Vector2f(40.f, 30.f));
-        
-        // Ustawienie w siatce 2x3
-        int col = i % 2;
-        int row = i / 2;
-        levelBtn.setPosition(sf::Vector2f(
-            szerokosc / 2.f - 100.f + col * 200.f,
-            wysokosc / 2.f - 80.f + row * 80.f
-        ));
-        
-        // Tekst numeru poziomu
-        sf::Text levelText;
-        levelText.setFont(font);
-        levelText.setString(std::to_string(i + 1));
-        levelText.setCharacterSize(24);
-        levelText.setFillColor(sf::Color::White);
-        levelText.setOrigin(sf::Vector2f(
-            levelText.getLocalBounds().width / 2.f,
-            levelText.getLocalBounds().height / 2.f
-        ));
-        levelText.setPosition(levelBtn.getPosition());
-        
-        // Zapisujemy tekst jako dane użytkownika 
-        levelBtn.setUserData(new sf::Text(levelText));
-        
-        levelButtons.push_back(levelBtn);
-    }
+// Przycisk powrotu
+sf::RectangleShape btnBackFromLevel(sf::Vector2f(200.f, 50.f));
+btnBackFromLevel.setTexture(&texBtnExit);
+btnBackFromLevel.setFillColor(sf::Color::White);
+btnBackFromLevel.setOrigin(sf::Vector2f(100.f, 25.f));
+btnBackFromLevel.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 100.f));
+
+// Przyciski 3 poziomów
+std::vector<sf::RectangleShape> poziomBtns;
+for (int i = 0; i < 3; ++i) {
+    sf::RectangleShape btn(sf::Vector2f(100.f, 60.f));
+    btn.setFillColor(sf::Color(50 + i * 50, 100, 200 - i * 30));
+    btn.setOutlineColor(sf::Color::White);
+    btn.setOutlineThickness(2.f);
+    btn.setOrigin(sf::Vector2f(50.f, 30.f));
+    btn.setPosition(sf::Vector2f(
+        szerokosc / 2.f - 120.f + i * 120.f,
+        wysokosc / 2.f - 30.f
+    ));
+    poziomBtns.push_back(btn);
+}
+
+
+
     // --- ELEMENTY PAUZY ---
 
     // Przyciemnienie ekranu
@@ -298,6 +294,7 @@ int main() {
                             gameMusic.play();
                             aktualnyStan = Stan::GRA;
                             resetGry();
+                            aktualnyPoziom = 1;
                         }
                         if (btnExit.getGlobalBounds().contains(mousePos)) {
                             window.close();
@@ -305,6 +302,34 @@ int main() {
                     }
                 }
             }
+            else if (aktualnyStan == Stan::LEVEL) {
+    if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+        if (mouseEvent->button == sf::Mouse::Button::Left) {
+            // Sprawdź czy kliknięto któryś z 3 poziomów
+            for (int i = 0; i < 3; ++i) {
+                if (poziomBtns[i].getGlobalBounds().contains(mousePos)) {
+                    aktualnyPoziom = i + 1;
+                    aktualnyStan = Stan::GRA;
+                    resetGry();
+                    menuMusic.stop();
+                    gameMusic.play();
+                    
+                    switch (aktualnyPoziom) {
+                        case 1: moc = 6.0f; break;
+                        case 2: moc = 7.0f; break;
+                        case 3: moc = 8.0f; break;
+                    }
+                    break;
+                }
+            }
+            
+            // Przycisk powrotu do menu
+            if (btnBackFromLevel.getGlobalBounds().contains(mousePos)) {
+                aktualnyStan = Stan::MENU;
+            }
+        }
+    }
+}
             else if (aktualnyStan == Stan::GRA) {
                 if (event->is<sf::Event::KeyPressed>() && !czyW_Ruchu) {
                     predkosc = sf::Vector2f(0.f, -moc);
@@ -352,6 +377,16 @@ int main() {
                 btnPlay.setFillColor(sf::Color::White);
                 btnPlay.setScale(sf::Vector2f(1.0f, 1.0f));
             }
+            if (btnLevelSelect.getGlobalBounds().contains(mousePos)) {
+            btnLevelSelect.setFillColor(sf::Color(220, 220, 220));
+            btnLevelSelect.setScale(sf::Vector2f(1.05f, 1.05f));
+             } 
+            else {
+            btnLevelSelect.setFillColor(sf::Color::White);
+            btnLevelSelect.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+    
+            
             if (btnExit.getGlobalBounds().contains(mousePos)) {
                 btnExit.setFillColor(sf::Color(220, 220, 220));
                 btnExit.setScale(sf::Vector2f(1.05f, 1.05f));
@@ -361,6 +396,28 @@ int main() {
                 btnExit.setScale(sf::Vector2f(1.0f, 1.0f));
             }
         }
+        else if (aktualnyStan == Stan::LEVEL) {
+    // Hover dla 3 przycisków poziomów
+        for (int i = 0; i < 3; ++i) {
+        if (poziomBtns[i].getGlobalBounds().contains(mousePos)) {
+            poziomBtns[i].setFillColor(sf::Color(255, 255, 150));
+            poziomBtns[i].setScale(sf::Vector2f(1.1f, 1.1f));
+        } else {
+            poziomBtns[i].setFillColor(sf::Color(50 + i * 50, 100, 200 - i * 30));
+            poziomBtns[i].setScale(sf::Vector2f(1.0f, 1.0f));
+        }
+    }
+    
+    // Hover dla przycisku powrotu
+        if (btnBackFromLevel.getGlobalBounds().contains(mousePos)) {
+        btnBackFromLevel.setFillColor(sf::Color(220, 220, 220));
+        btnBackFromLevel.setScale(sf::Vector2f(1.05f, 1.05f));
+        } else {
+        btnBackFromLevel.setFillColor(sf::Color::White);
+        btnBackFromLevel.setScale(sf::Vector2f(1.0f, 1.0f));
+        }
+    }
+    
 
         // 2. PAUZA
         if (aktualnyStan == Stan::PAUSE) {
@@ -458,6 +515,7 @@ int main() {
         if (aktualnyStan == Stan::MENU) {
             window.draw(titleSprite);
             window.draw(btnPlay);
+            window.draw(btnLevelSelect);
             window.draw(btnExit);
         }
         else if (aktualnyStan == Stan::GRA) {
@@ -465,6 +523,41 @@ int main() {
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             window.draw(kulka);
         }
+            else if (aktualnyStan == Stan::LEVEL) {
+    window.draw(poziomSelectBg);
+    
+    // Rysuj 3 przyciski poziomów
+    for (const auto& btn : poziomBtns) {
+        window.draw(btn);
+    }
+    
+    // Rysuj przycisk powrotu
+    window.draw(btnBackFromLevel);
+    
+    // Dodaj teksty
+    sf::Text poziomText;
+    poziomText.setFont(font);
+    poziomText.setString("WYBIERZ POZIOM TRUDNOSCI");
+    poziomText.setCharacterSize(24);
+    poziomText.setFillColor(sf::Color::White);
+    poziomText.setOrigin(poziomText.getLocalBounds().width / 2.f, 
+                         poziomText.getLocalBounds().height / 2.f);
+    poziomText.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 80.f));
+    window.draw(poziomText);
+    
+    // Dodaj numery poziomów
+    for (int i = 0; i < 3; ++i) {
+        sf::Text nrText;
+        nrText.setFont(font);
+        nrText.setString(std::to_string(i + 1));
+        nrText.setCharacterSize(28);
+        nrText.setFillColor(sf::Color::White);
+        nrText.setOrigin(nrText.getLocalBounds().width / 2.f, 
+                         nrText.getLocalBounds().height / 2.f);
+        nrText.setPosition(poziomBtns[i].getPosition());
+        window.draw(nrText);
+    }
+}
         else if (aktualnyStan == Stan::PAUSE) {
             // Rysujemy grę pod spodem
             window.draw(paletka);
