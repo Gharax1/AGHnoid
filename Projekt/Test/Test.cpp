@@ -102,12 +102,12 @@ int main() {
        sf::Texture texBtnLevelSelect;
     if (!texBtnLevelSelect.loadFromFile("Sprites/btn_levels.png")) {
         texBtnLevelSelect = texBtnPlay;
-        
+    }
     texBtnPlay.setSmooth(true);
     texBtnExit.setSmooth(true);
     texBtnResume.setSmooth(true);
     texBtnRestart.setSmooth(true);
-    texBtnLevelSelect.setSmooth(true)
+    texBtnLevelSelect.setSmooth(true);
 
     // --- PRZYCISKI MENU GŁÓWNEGO ---
 
@@ -296,7 +296,10 @@ for (int i = 0; i < 3; ++i) {
                             resetGry();
                             aktualnyPoziom = 1;
                         }
-                        if (btnExit.getGlobalBounds().contains(mousePos)) {
+                        if (btnLevelSelect.getGlobalBounds().contains(mousePos)) {
+                    aktualnyStan = Stan::LEVEL;
+                         }
+                            if (btnExit.getGlobalBounds().contains(mousePos)) {
                             window.close();
                         }
                     }
