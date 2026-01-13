@@ -8,8 +8,11 @@
 // Definiujemy możliwe stany gry
 enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE };
 
+
 // Licznik punktów
 int points = 0;
+int wybranyPoziom = 1;
+
 
 int main() {
     const unsigned int szerokosc = 800;
@@ -20,11 +23,13 @@ int main() {
 
     Stan aktualnyStan = Stan::MENU;
 
+
     // --- CZCIONKA ---
     sf::Font font;
     if (!font.openFromFile("Fonts/arial.ttf")) {
         return -1;
     }
+
 
     // --- TŁO ---
     sf::Texture backgroundTexture;
@@ -46,26 +51,28 @@ int main() {
     if(!GameOverTexture.loadFromFile("Sprites/game_over.png")){}
     GameOverTexture.setSmooth(true);
     
-    int GOTwidth = GameOverTexture.getSize().x/2;
-    int GOTheight = GameOverTexture.getSize().y / 2;
+    float GOTwidth = static_cast<float>(GameOverTexture.getSize().x) / 2.f;
+    float GOTheight = static_cast<float>(GameOverTexture.getSize().y) / 2.f;
 
     sf::Sprite GameOverSprite(GameOverTexture);
     GameOverSprite.setOrigin(sf::Vector2f(GOTwidth, GOTheight));
     GameOverSprite.setPosition(sf::Vector2f(szerokosc / 2.f, 150.f));
     GameOverSprite.setScale(sf::Vector2f(0.6f, 0.6f));
 
+
     // ------- WIN ----------
     sf::Texture WinTexture;
     if (!WinTexture.loadFromFile("Sprites/game_over.png")) {}
     WinTexture.setSmooth(true);
 
-    int WinTwidth = WinTexture.getSize().x / 2;
-    int WinTheight = WinTexture.getSize().y / 2;
+    float WinTwidth = static_cast<float>(WinTexture.getSize().x) / 2.f;
+    float WinTheight = static_cast<float>(WinTexture.getSize().y) / 2.f;
 
     sf::Sprite WinSprite(WinTexture);
     WinSprite.setOrigin(sf::Vector2f(WinTwidth, WinTheight));
     WinSprite.setPosition(sf::Vector2f(szerokosc / 2.f, 150.f));
     WinSprite.setScale(sf::Vector2f(0.6f, 0.6f));
+
 
     // ==================================================
     // --- ANIMOWANY TYTUŁ ---
@@ -88,6 +95,7 @@ int main() {
     sf::Clock titleClock;
     int currentTitleFrame = 0;
 
+
     // --- AUDIO ---
     sf::SoundBuffer hitBuffer;
     if (!hitBuffer.loadFromFile("Sounds/Hit/hit1.wav")) {}
@@ -107,6 +115,7 @@ int main() {
         gameMusic.setVolume(10.f);
     }
 
+
     // ==================================================
     // --- ELEMENTY PRZYCISKÓW ---
     // ==================================================
@@ -121,7 +130,6 @@ int main() {
     sf::Texture texBtnResume;
     if (!texBtnResume.loadFromFile("Sprites/btn_resume.png")) { return -1; }
 
-    // NOWA TEKSTURA RESTART
     sf::Texture texBtnRestart;
     if (!texBtnRestart.loadFromFile("Sprites/btn_restart.png")) { return -1; }
 
@@ -129,6 +137,7 @@ int main() {
     texBtnExit.setSmooth(true);
     texBtnResume.setSmooth(true);
     texBtnRestart.setSmooth(true);
+
 
     // --- PRZYCISKI MENU GŁÓWNEGO ---
 
@@ -145,32 +154,84 @@ int main() {
     btnExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
 
 
+    // --- ELEMENTY WYBORU POZIOMU ---
+
+    sf::RectangleShape btnLvl1(sf::Vector2f(300.f, 60.f));
+    btnLvl1.setTexture(&texBtnPlay);
+    btnLvl1.setFillColor(sf::Color::White);
+    btnLvl1.setOrigin(sf::Vector2f(150.f, 30.f));
+    btnLvl1.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 120.f)); // Przesunięte w górę
+
+    sf::Text textLvl1(font); 
+    textLvl1.setString("POZIOM 1");
+    textLvl1.setCharacterSize(30);
+    textLvl1.setFillColor(sf::Color::Black);
+    textLvl1.setOrigin(sf::Vector2f(textLvl1.getGlobalBounds().size.x / 2.f, textLvl1.getGlobalBounds().size.y / 2.f));
+    textLvl1.setPosition(btnLvl1.getPosition());
+
+
+    sf::RectangleShape btnLvl2(sf::Vector2f(300.f, 60.f));
+    btnLvl2.setTexture(&texBtnPlay);
+    btnLvl2.setFillColor(sf::Color::White);
+    btnLvl2.setOrigin(sf::Vector2f(150.f, 30.f));
+    btnLvl2.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 40.f)); // Przesunięte w górę
+
+    sf::Text textLvl2(font);
+    textLvl2.setString("POZIOM 2");
+    textLvl2.setCharacterSize(30);
+    textLvl2.setFillColor(sf::Color::Black);
+    textLvl2.setOrigin(sf::Vector2f(textLvl2.getGlobalBounds().size.x / 2.f, textLvl2.getGlobalBounds().size.y / 2.f));
+    textLvl2.setPosition(btnLvl2.getPosition());
+
+    // --- DOPISANY POZIOM 3 ---
+    sf::RectangleShape btnLvl3(sf::Vector2f(300.f, 60.f));
+    btnLvl3.setTexture(&texBtnPlay);
+    btnLvl3.setFillColor(sf::Color::White);
+    btnLvl3.setOrigin(sf::Vector2f(150.f, 30.f));
+    btnLvl3.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 40.f));
+
+    sf::Text textLvl3(font); 
+    textLvl3.setString("POZIOM 3");
+    textLvl3.setCharacterSize(30);
+    textLvl3.setFillColor(sf::Color::Black);
+    textLvl3.setOrigin(sf::Vector2f(textLvl3.getGlobalBounds().size.x / 2.f, textLvl3.getGlobalBounds().size.y / 2.f));
+    textLvl3.setPosition(btnLvl3.getPosition());
+
+
+    sf::RectangleShape btnLvlBack(sf::Vector2f(250.f, 60.f));
+    btnLvlBack.setTexture(&texBtnExit);
+    btnLvlBack.setFillColor(sf::Color::White);
+    btnLvlBack.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnLvlBack.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 120.f));
+
+   
+
+
     // --- ELEMENTY PAUZY ---
 
-    // Przyciemnienie ekranu
     sf::RectangleShape dimmer(sf::Vector2f((float)szerokosc, (float)wysokosc));
     dimmer.setFillColor(sf::Color(0, 0, 0, 150));
 
-    // Przycisk WZNÓW (PAUZA) - przesunięty wyżej
     sf::RectangleShape btnResume(sf::Vector2f(250.f, 60.f));
     btnResume.setTexture(&texBtnResume);
     btnResume.setFillColor(sf::Color::White);
     btnResume.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnResume.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 80.f)); // Wyżej
+    btnResume.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 80.f));
 
-    // Przycisk RESTART (PAUZA) - na środku
+
     sf::RectangleShape btnRestart(sf::Vector2f(250.f, 60.f));
     btnRestart.setTexture(&texBtnRestart);
     btnRestart.setFillColor(sf::Color::White);
     btnRestart.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f)); // Środek
+    btnRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f));
 
-    // Przycisk WYJŚCIE DO MENU (PAUZA) - przesunięty niżej
+
     sf::RectangleShape btnPauseExit(sf::Vector2f(250.f, 60.f));
     btnPauseExit.setTexture(&texBtnExit);
     btnPauseExit.setFillColor(sf::Color::White);
     btnPauseExit.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnPauseExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 80.f)); // Niżej
+    btnPauseExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 80.f));
+
 
     // ------------- PRZYCISKI GAME OVER/WIN ---------------- 
 
@@ -179,6 +240,7 @@ int main() {
     btnGameOverRestart.setFillColor(sf::Color::White);
     btnGameOverRestart.setOrigin(sf::Vector2f(125.f,30.f));
     btnGameOverRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 30.f));
+
 
     sf::RectangleShape btnGameOverExit(sf::Vector2f(250.f, 60.f));
     btnGameOverExit.setTexture(&texBtnExit);
@@ -206,6 +268,7 @@ int main() {
     paletka.setFillColor(sf::Color::White);
     paletka.setOrigin(sf::Vector2f(paletkaRozmiar.x / 2.f, (paletkaRozmiar.y / 2.f) + 0.5f));
 
+
     sf::Vector2f predkosc(0.f, 0.f);
     bool czyW_Ruchu = false;
     float moc = 6.0f;
@@ -219,7 +282,8 @@ int main() {
     sf::Texture blokTexture;
     if (blokTexture.loadFromFile("Sprites/bloczki_4.png")) {}
 
-    auto resetGry = [&]() {
+
+    auto resetGry = [&](int lvl) {
         points = 0;
         kulka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
         paletka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc - 40.f));
@@ -227,12 +291,18 @@ int main() {
         czyW_Ruchu = false;
 
         bloczki.clear();
-        for (int rzad = 0; rzad < 3; ++rzad) {
+        
+        // DOPISANA LOGIKA RZĘDÓW DLA LVL 3
+        int rzedy = 3;
+        if (lvl == 2) rzedy = 5;
+        if (lvl == 3) rzedy = 8; 
+
+        for (int rzad = 0; rzad < rzedy; ++rzad) {
             for (int kol = 0; kol < 10; ++kol) {
                 Bloczki b;
                 b.shape.setSize(sf::Vector2f(70.f, 25.f));
                 b.shape.setTexture(&blokTexture);
-                switch (rzad) {
+                switch (rzad % 3) {
                 case 0: b.shape.setFillColor(sf::Color(0x00, 0x6b, 0x3b)); break;
                 case 1: b.shape.setFillColor(sf::Color(0x23, 0x1f, 0x20)); break;
                 case 2: b.shape.setFillColor(sf::Color(0xb0, 0x10, 0x28)); break;
@@ -243,32 +313,30 @@ int main() {
         }
         };
 
-    resetGry();
+
+    resetGry(1);
     std::random_device rd;
     std::mt19937 gen(rd());
+
 
     // --- PĘTLA GŁÓWNA ---
     while (window.isOpen()) {
 
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-        // Animacja tytułu (Tylko w Menu)
         if (aktualnyStan == Stan::MENU) {
             if (titleClock.getElapsedTime().asSeconds() >= 1.0f) {
                 currentTitleFrame = (currentTitleFrame + 1) % 2;
                 int left = currentTitleFrame * frameWidth;
-                titleSprite.setTextureRect(sf::IntRect(
-                    sf::Vector2i(left, 0),
-                    sf::Vector2i(frameWidth, frameHeight)
-                ));
+                titleSprite.setTextureRect(sf::IntRect(sf::Vector2i(left, 0), sf::Vector2i(frameWidth, frameHeight)));
                 titleClock.restart();
             }
         }
 
+
         while (const std::optional event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) window.close();
 
-            // PAUZA (ESC)
             if (event->is<sf::Event::KeyPressed>()) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
                     if (aktualnyStan == Stan::GRA) {
@@ -282,17 +350,46 @@ int main() {
                 }
             }
 
+
             if (aktualnyStan == Stan::MENU) {
                 if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseEvent->button == sf::Mouse::Button::Left) {
                         if (btnPlay.getGlobalBounds().contains(mousePos)) {
-                            menuMusic.stop();
-                            gameMusic.play();
-                            aktualnyStan = Stan::GRA;
-                            resetGry();
+                            aktualnyStan = Stan::LEVEL;
                         }
                         if (btnExit.getGlobalBounds().contains(mousePos)) {
                             window.close();
+                        }
+                    }
+                }
+            }
+            else if (aktualnyStan == Stan::LEVEL) {
+                if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+                    if (mouseEvent->button == sf::Mouse::Button::Left) {
+                        if (btnLvl1.getGlobalBounds().contains(mousePos)) {
+                            wybranyPoziom = 1;
+                            resetGry(1);
+                            menuMusic.stop();
+                            gameMusic.play();
+                            aktualnyStan = Stan::GRA;
+                        }
+                        if (btnLvl2.getGlobalBounds().contains(mousePos)) {
+                            wybranyPoziom = 2;
+                            resetGry(2);
+                            menuMusic.stop();
+                            gameMusic.play();
+                            aktualnyStan = Stan::GRA;
+                        }
+                        // DOPISANE KLIKNIĘCIE LVL 3
+                        if (btnLvl3.getGlobalBounds().contains(mousePos)) {
+                            wybranyPoziom = 3;
+                            resetGry(3);
+                            menuMusic.stop();
+                            gameMusic.play();
+                            aktualnyStan = Stan::GRA;
+                        }
+                        if (btnLvlBack.getGlobalBounds().contains(mousePos)) {
+                            aktualnyStan = Stan::MENU;
                         }
                     }
                 }
@@ -306,22 +403,16 @@ int main() {
             else if (aktualnyStan == Stan::PAUSE) {
                 if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseEvent->button == sf::Mouse::Button::Left) {
-
-                        // Kliknięcie WZNÓW
                         if (btnResume.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::GRA;
                             gameMusic.play();
                         }
-
-                        // Kliknięcie RESTART
                         if (btnRestart.getGlobalBounds().contains(mousePos)) {
-                            resetGry();
+                            resetGry(wybranyPoziom);
                             aktualnyStan = Stan::GRA;
-                            gameMusic.stop(); // Restart muzyki
+                            gameMusic.stop();
                             gameMusic.play();
                         }
-
-                        // Kliknięcie WYJŚCIE (do menu)
                         if (btnPauseExit.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::MENU;
                             gameMusic.stop();
@@ -330,38 +421,15 @@ int main() {
                     }
                 }
             }
-            else if (aktualnyStan == Stan::LOSE) {
+            else if (aktualnyStan == Stan::LOSE || aktualnyStan == Stan::WIN) {
                 if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseEvent->button == sf::Mouse::Button::Left) {
-                        // Kliknięcie RESTART
                         if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
-                            resetGry();
+                            resetGry(wybranyPoziom);
                             aktualnyStan = Stan::GRA;
-                            gameMusic.stop(); // Restart muzyki
-                            gameMusic.play();
-                        }
-
-                        // Kliknięcie WYJŚCIE (do menu)
-                        if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
-                            aktualnyStan = Stan::MENU;
                             gameMusic.stop();
-                            menuMusic.play();
-                        }
-                    }
-                }
-            }
-            else if (aktualnyStan == Stan::WIN) {
-                if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
-                    if (mouseEvent->button == sf::Mouse::Button::Left) {
-                        // Kliknięcie RESTART
-                        if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
-                            resetGry();
-                            aktualnyStan = Stan::GRA;
-                            gameMusic.stop(); // Restart muzyki
                             gameMusic.play();
                         }
-
-                        // Kliknięcie WYJŚCIE (do menu)
                         if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::MENU;
                             gameMusic.stop();
@@ -372,101 +440,85 @@ int main() {
             }
         }
 
-        // --- HOVER LOGIC ---
 
-        // 1. MENU
+        // --- HOVER LOGIC ---
         if (aktualnyStan == Stan::MENU) {
             if (btnPlay.getGlobalBounds().contains(mousePos)) {
                 btnPlay.setFillColor(sf::Color(220, 220, 220));
                 btnPlay.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
+            } else {
                 btnPlay.setFillColor(sf::Color::White);
                 btnPlay.setScale(sf::Vector2f(1.0f, 1.0f));
             }
             if (btnExit.getGlobalBounds().contains(mousePos)) {
                 btnExit.setFillColor(sf::Color(220, 220, 220));
                 btnExit.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
+            } else {
                 btnExit.setFillColor(sf::Color::White);
                 btnExit.setScale(sf::Vector2f(1.0f, 1.0f));
             }
         }
 
-        // 2. PAUZA
+
+        if (aktualnyStan == Stan::LEVEL) {
+            if (btnLvl1.getGlobalBounds().contains(mousePos)) {
+                btnLvl1.setFillColor(sf::Color(220, 220, 220));
+                btnLvl1.setScale(sf::Vector2f(1.05f, 1.05f));
+            } else {
+                btnLvl1.setFillColor(sf::Color::White);
+                btnLvl1.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnLvl2.getGlobalBounds().contains(mousePos)) {
+                btnLvl2.setFillColor(sf::Color(220, 220, 220));
+                btnLvl2.setScale(sf::Vector2f(1.05f, 1.05f));
+            } else {
+                btnLvl2.setFillColor(sf::Color::White);
+                btnLvl2.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            // DOPISANY HOVER LVL 3
+            if (btnLvl3.getGlobalBounds().contains(mousePos)) {
+                btnLvl3.setFillColor(sf::Color(220, 220, 220));
+                btnLvl3.setScale(sf::Vector2f(1.05f, 1.05f));
+            } else {
+                btnLvl3.setFillColor(sf::Color::White);
+                btnLvl3.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnLvlBack.getGlobalBounds().contains(mousePos)) {
+                btnLvlBack.setFillColor(sf::Color(220, 220, 220));
+                btnLvlBack.setScale(sf::Vector2f(1.05f, 1.05f));
+            } else {
+                btnLvlBack.setFillColor(sf::Color::White);
+                btnLvlBack.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+        }
+
+
         if (aktualnyStan == Stan::PAUSE) {
-            // WZNÓW
             if (btnResume.getGlobalBounds().contains(mousePos)) {
                 btnResume.setFillColor(sf::Color(220, 220, 220));
                 btnResume.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
+            } else {
                 btnResume.setFillColor(sf::Color::White);
                 btnResume.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            // RESTART
             if (btnRestart.getGlobalBounds().contains(mousePos)) {
                 btnRestart.setFillColor(sf::Color(220, 220, 220));
                 btnRestart.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
+            } else {
                 btnRestart.setFillColor(sf::Color::White);
                 btnRestart.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            // WYJŚCIE
             if (btnPauseExit.getGlobalBounds().contains(mousePos)) {
                 btnPauseExit.setFillColor(sf::Color(220, 220, 220));
                 btnPauseExit.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
+            } else {
                 btnPauseExit.setFillColor(sf::Color::White);
                 btnPauseExit.setScale(sf::Vector2f(1.0f, 1.0f));
             }
         }
-        // PRZEGRANA
-        if (aktualnyStan == Stan::LOSE)
-        {
-            if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
-                btnGameOverRestart.setFillColor(sf::Color(220, 220, 220));
-                btnGameOverRestart.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
-                btnGameOverRestart.setFillColor(sf::Color::White);
-                btnGameOverRestart.setScale(sf::Vector2f(1.0f, 1.0f));
-            }
-            if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
-                btnGameOverExit.setFillColor(sf::Color(220, 220, 220));
-                btnGameOverExit.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
-                btnGameOverExit.setFillColor(sf::Color::White);
-                btnGameOverExit.setScale(sf::Vector2f(1.0f, 1.0f));
-            }
-        }
 
-        // WYGRANA
-        if (aktualnyStan == Stan::WIN)
-        {
-            if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
-                btnGameOverRestart.setFillColor(sf::Color(220, 220, 220));
-                btnGameOverRestart.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
-                btnGameOverRestart.setFillColor(sf::Color::White);
-                btnGameOverRestart.setScale(sf::Vector2f(1.0f, 1.0f));
-            }
-            if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
-                btnGameOverExit.setFillColor(sf::Color(220, 220, 220));
-                btnGameOverExit.setScale(sf::Vector2f(1.05f, 1.05f));
-            }
-            else {
-                btnGameOverExit.setFillColor(sf::Color::White);
-                btnGameOverExit.setScale(sf::Vector2f(1.0f, 1.0f));
-            }
-        }
 
-        // --- LOGIKA GRY (Tylko gdy brak pauzy) ---
+        // --- LOGIKA GRY ---
         if (aktualnyStan == Stan::GRA) {
             float ruchX = 0.f;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) ruchX = -8.f;
@@ -474,13 +526,11 @@ int main() {
 
             paletka.move(sf::Vector2f(ruchX, 0.f));
 
-            sf::Vector2f pozycjaPaletki = paletka.getPosition();
-            float polSzerokosci = paletka.getSize().x / 2.f;
+            if (paletka.getPosition().x - 60.f < 0.f)
+                paletka.setPosition(sf::Vector2f(60.f, paletka.getPosition().y));
+            else if (paletka.getPosition().x + 60.f > szerokosc)
+                paletka.setPosition(sf::Vector2f(szerokosc - 60.f, paletka.getPosition().y));
 
-            if (pozycjaPaletki.x - polSzerokosci < 0.f)
-                paletka.setPosition(sf::Vector2f(polSzerokosci, pozycjaPaletki.y));
-            else if (pozycjaPaletki.x + polSzerokosci > szerokosc)
-                paletka.setPosition(sf::Vector2f(szerokosc - polSzerokosci, pozycjaPaletki.y));
 
             if (czyW_Ruchu) {
                 kulka.move(predkosc);
@@ -493,32 +543,22 @@ int main() {
                 if (pos.y + promien >= wysokosc) {
                     aktualnyStan = Stan::LOSE;
                     gameMusic.stop();
-                }
-                else if (points >= bloczki.size())
-                {
+                } else if (points >= (int)bloczki.size()) {
                     aktualnyStan = Stan::WIN;
                     gameMusic.stop();
                 }
 
                 if (kulka.getGlobalBounds().findIntersection(paletka.getGlobalBounds())) {
-                    float kat;
-                    if (ruchX == 0) {
-                        std::uniform_real_distribution<float> dist(220.f, 320.f);
-                        kat = dist(gen);
-                    }
-                    else {
-                        kat = (ruchX < 0) ? 220.f : 320.f;
-                    }
+                    float kat = (ruchX == 0) ? 270.f : (ruchX < 0 ? 220.f : 320.f);
                     float rad = kat * 3.14159f / 180.f;
                     predkosc = sf::Vector2f(std::cos(rad) * moc, std::sin(rad) * moc);
                     kulka.setPosition(sf::Vector2f(pos.x, paletka.getPosition().y - 15.f));
                 }
 
+
                 for (auto& b : bloczki) {
                     if (!b.zniszczony && kulka.getGlobalBounds().findIntersection(b.shape.getGlobalBounds())) {
                         b.zniszczony = true;
-                        std::uniform_real_distribution<float> pitchDist(0.8f, 1.2f);
-                        hitSound.setPitch(pitchDist(gen));
                         hitSound.play();
                         points++;
                         predkosc.y = -predkosc.y;
@@ -527,6 +567,7 @@ int main() {
                 }
             }
         }
+
 
         // --- RENDEROWANIE ---
         window.clear(sf::Color(30, 30, 30));
@@ -537,20 +578,25 @@ int main() {
             window.draw(btnPlay);
             window.draw(btnExit);
         }
+        else if (aktualnyStan == Stan::LEVEL) {
+            window.draw(btnLvl1);
+            window.draw(textLvl1);
+            window.draw(btnLvl2);
+            window.draw(textLvl2);
+            window.draw(btnLvl3);
+            window.draw(textLvl3);
+            window.draw(btnLvlBack);
+        }
         else if (aktualnyStan == Stan::GRA) {
             window.draw(paletka);
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             window.draw(kulka);
         }
         else if (aktualnyStan == Stan::PAUSE) {
-            // Rysujemy grę pod spodem
             window.draw(paletka);
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             window.draw(kulka);
-
             window.draw(dimmer);
-
-            // Rysujemy 3 przyciski
             window.draw(btnResume);
             window.draw(btnRestart);
             window.draw(btnPauseExit);
