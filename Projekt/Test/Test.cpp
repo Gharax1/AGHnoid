@@ -160,7 +160,7 @@ int main() {
     btnLvl1.setTexture(&texBtnPlay);
     btnLvl1.setFillColor(sf::Color::White);
     btnLvl1.setOrigin(sf::Vector2f(150.f, 30.f));
-    btnLvl1.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 120.f)); // Przesunięte w górę
+    btnLvl1.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 120.f)); 
 
     sf::Text textLvl1(font); 
     textLvl1.setString("POZIOM 1");
@@ -174,7 +174,7 @@ int main() {
     btnLvl2.setTexture(&texBtnPlay);
     btnLvl2.setFillColor(sf::Color::White);
     btnLvl2.setOrigin(sf::Vector2f(150.f, 30.f));
-    btnLvl2.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 40.f)); // Przesunięte w górę
+    btnLvl2.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 40.f)); 
 
     sf::Text textLvl2(font);
     textLvl2.setString("POZIOM 2");
@@ -183,7 +183,6 @@ int main() {
     textLvl2.setOrigin(sf::Vector2f(textLvl2.getGlobalBounds().size.x / 2.f, textLvl2.getGlobalBounds().size.y / 2.f));
     textLvl2.setPosition(btnLvl2.getPosition());
 
-    // --- DOPISANY POZIOM 3 ---
     sf::RectangleShape btnLvl3(sf::Vector2f(300.f, 60.f));
     btnLvl3.setTexture(&texBtnPlay);
     btnLvl3.setFillColor(sf::Color::White);
@@ -292,7 +291,7 @@ int main() {
 
         bloczki.clear();
         
-        // DOPISANA LOGIKA RZĘDÓW DLA LVL 3
+        // LOGIKA DLA LVL 3
         int rzedy = 3;
         if (lvl == 2) rzedy = 5;
         if (lvl == 3) rzedy = 8; 
@@ -475,7 +474,7 @@ int main() {
                 btnLvl2.setFillColor(sf::Color::White);
                 btnLvl2.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            // DOPISANY HOVER LVL 3
+    
             if (btnLvl3.getGlobalBounds().contains(mousePos)) {
                 btnLvl3.setFillColor(sf::Color(220, 220, 220));
                 btnLvl3.setScale(sf::Vector2f(1.05f, 1.05f));
