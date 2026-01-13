@@ -275,6 +275,7 @@ int main() {
     struct Bloczki {
         sf::RectangleShape shape;
         bool zniszczony = false;
+        int health_points;
     };
     std::vector<Bloczki> bloczki;
 
@@ -296,11 +297,16 @@ int main() {
         if (lvl == 2) rzedy = 5;
         if (lvl == 3) rzedy = 8; 
 
+
         for (int rzad = 0; rzad < rzedy; ++rzad) {
             for (int kol = 0; kol < 10; ++kol) {
                 Bloczki b;
                 b.shape.setSize(sf::Vector2f(70.f, 25.f));
                 b.shape.setTexture(&blokTexture);
+                if (lvl == 1) b.health_points = 1;
+                if ((lvl == 2) && (rzad % 2 == 0)) b.health_points = 2;
+                if ((lvl == 3) && (rzad % 3 == 0)) b.health_points = 2;
+                if ((lvl == 3) && (rzad % 5 == 0)) b.health_points = 3;
                 switch (rzad % 3) {
                 case 0: b.shape.setFillColor(sf::Color(0x00, 0x6b, 0x3b)); break;
                 case 1: b.shape.setFillColor(sf::Color(0x23, 0x1f, 0x20)); break;
@@ -320,6 +326,7 @@ int main() {
 
     // --- PĘTLA GŁÓWNA ---
     while (window.isOpen()) {
+        srand(time(NULL));
 
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
@@ -557,9 +564,12 @@ int main() {
 
                 for (auto& b : bloczki) {
                     if (!b.zniszczony && kulka.getGlobalBounds().findIntersection(b.shape.getGlobalBounds())) {
-                        b.zniszczony = true;
+                        b.health_points--;
                         hitSound.play();
-                        points++;
+                        if (b.health_points == 0) {
+                            points++;
+                            b.zniszczony = true;
+                        }
                         predkosc.y = -predkosc.y;
                         break;
                     }
