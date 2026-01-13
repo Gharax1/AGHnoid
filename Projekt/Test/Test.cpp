@@ -6,7 +6,7 @@
 #include <vector>
 
 // Definiujemy możliwe stany gry
-enum class Stan { MENU, GRA, LEVEL, PAUSE };
+enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE };
 
 // Licznik punktów
 int points = 0;
@@ -41,7 +41,34 @@ int main() {
         static_cast<float>(szerokosc) / rozmiarObrazka.x,
         static_cast<float>(wysokosc) / rozmiarObrazka.y
     ));
+    
+    // ---- GAME OVER -------
 
+    sf::Texture GameOverTexture;
+    if(!GameOverTexture.loadFromFile("Sprites/game_over.png")){}
+    GameOverTexture.setSmooth(true);
+    
+    int GOTwidth = GameOverTexture.getSize().x/2;
+    int GOTheight = GameOverTexture.getSize().y / 2;
+
+    sf::Sprite GameOverSprite(GameOverTexture);
+    GameOverSprite.setOrigin(sf::Vector2f(GOTwidth, GOTheight));
+    GameOverSprite.setPosition(sf::Vector2f(szerokosc / 2.f, 150.f));
+    GameOverSprite.setScale(sf::Vector2f(0.6f, 0.6f));
+
+    // ------- WIN ----------
+    sf::Texture WinTexture;
+    if (!WinTexture.loadFromFile("Sprites/game_over.png")) {}
+    WinTexture.setSmooth(true);
+
+    int WinTwidth = WinTexture.getSize().x / 2;
+    int WinTheight = WinTexture.getSize().y / 2;
+
+    sf::Sprite WinSprite(WinTexture);
+    WinSprite.setOrigin(sf::Vector2f(WinTwidth, WinTheight));
+    WinSprite.setPosition(sf::Vector2f(szerokosc / 2.f, 150.f));
+    WinSprite.setScale(sf::Vector2f(0.6f, 0.6f));
+    
     // ==================================================
     // --- ANIMOWANY TYTUŁ ---
     // ==================================================
@@ -206,6 +233,19 @@ for (int i = 0; i < 3; ++i) {
     btnPauseExit.setOrigin(sf::Vector2f(125.f, 30.f));
     btnPauseExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 80.f)); // Niżej
 
+    // ------------- PRZYCISKI GAME OVER/WIN ---------------- 
+
+    sf::RectangleShape btnGameOverRestart(sf::Vector2f(250.f, 60.f));
+    btnGameOverRestart.setTexture(&texBtnRestart);
+    btnGameOverRestart.setFillColor(sf::Color::White);
+    btnGameOverRestart.setOrigin(sf::Vector2f(125.f,30.f));
+    btnGameOverRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 30.f));
+
+    sf::RectangleShape btnGameOverExit(sf::Vector2f(250.f, 60.f));
+    btnGameOverExit.setTexture(&texBtnExit);
+    btnGameOverExit.setFillColor(sf::Color::White);
+    btnGameOverExit.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnGameOverExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
 
     // --- GRACZ I OBIEKTY ---
     sf::Texture kulkaTexture;
@@ -403,6 +443,47 @@ for (int i = 0; i < 3; ++i) {
                     }
                 }
             }
+            else if (aktualnyStan == Stan::LOSE) {
+                if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+                    if (mouseEvent->button == sf::Mouse::Button::Left) {
+                        // Kliknięcie RESTART
+                        if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
+                            resetGry();
+                            aktualnyStan = Stan::GRA;
+                            gameMusic.stop(); // Restart muzyki
+                            gameMusic.play();
+                        }
+
+                        // Kliknięcie WYJŚCIE (do menu)
+                        if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
+                            aktualnyStan = Stan::MENU;
+                            gameMusic.stop();
+                            menuMusic.play();
+                        }
+                    }
+                }
+            }
+            else if (aktualnyStan == Stan::WIN) {
+                if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+                    if (mouseEvent->button == sf::Mouse::Button::Left) {
+                        // Kliknięcie RESTART
+                        if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
+                            resetGry();
+                            aktualnyStan = Stan::GRA;
+                            gameMusic.stop(); // Restart muzyki
+                            gameMusic.play();
+                        }
+
+                        // Kliknięcie WYJŚCIE (do menu)
+                        if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
+                            aktualnyStan = Stan::MENU;
+                            gameMusic.stop();
+                            menuMusic.play();
+                        }
+                    }
+                }
+            }
+            
         }
 
         // --- HOVER LOGIC ---
@@ -489,6 +570,47 @@ for (int i = 0; i < 3; ++i) {
                 btnPauseExit.setScale(sf::Vector2f(1.0f, 1.0f));
             }
         }
+        // PRZEGRANA
+        if (aktualnyStan == Stan::LOSE)
+        {
+            if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
+                btnGameOverRestart.setFillColor(sf::Color(220, 220, 220));
+                btnGameOverRestart.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnGameOverRestart.setFillColor(sf::Color::White);
+                btnGameOverRestart.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
+                btnGameOverExit.setFillColor(sf::Color(220, 220, 220));
+                btnGameOverExit.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnGameOverExit.setFillColor(sf::Color::White);
+                btnGameOverExit.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+        }
+
+        // WYGRANA
+        if (aktualnyStan == Stan::WIN)
+        {
+            if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
+                btnGameOverRestart.setFillColor(sf::Color(220, 220, 220));
+                btnGameOverRestart.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnGameOverRestart.setFillColor(sf::Color::White);
+                btnGameOverRestart.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
+                btnGameOverExit.setFillColor(sf::Color(220, 220, 220));
+                btnGameOverExit.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnGameOverExit.setFillColor(sf::Color::White);
+                btnGameOverExit.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+        }
 
         // --- LOGIKA GRY (Tylko gdy brak pauzy) ---
         if (aktualnyStan == Stan::GRA) {
@@ -514,10 +636,14 @@ for (int i = 0; i < 3; ++i) {
                 if (pos.x - promien <= 0 || pos.x + promien >= szerokosc) predkosc.x = -predkosc.x;
                 if (pos.y - promien <= 0) predkosc.y = -predkosc.y;
 
-                if (pos.y + promien >= wysokosc || points >= bloczki.size()) {
-                    aktualnyStan = Stan::MENU;
+                if (pos.y + promien >= wysokosc) {
+                    aktualnyStan = Stan::LOSE;
                     gameMusic.stop();
-                    menuMusic.play();
+                }
+                else if (points >= bloczki.size())
+                {
+                    aktualnyStan = Stan::WIN;
+                    gameMusic.stop();
                 }
 
                 if (kulka.getGlobalBounds().findIntersection(paletka.getGlobalBounds())) {
@@ -618,6 +744,18 @@ for (int i = 0; i < 3; ++i) {
             window.draw(btnResume);
             window.draw(btnRestart);
             window.draw(btnPauseExit);
+        }
+        else if (aktualnyStan == Stan::LOSE) {
+            window.draw(dimmer);
+            window.draw(GameOverSprite);
+            window.draw(btnGameOverRestart);
+            window.draw(btnGameOverExit);
+        }
+        else if (aktualnyStan == Stan::WIN) {
+            window.draw(dimmer);
+            window.draw(WinSprite);
+            window.draw(btnGameOverRestart);
+            window.draw(btnGameOverExit);
         }
 
         window.display();
