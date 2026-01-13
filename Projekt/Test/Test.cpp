@@ -150,7 +150,7 @@ btnBackFromLevel.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 100.
 
 // Przyciski 3 poziomów
 std::vector<sf::RectangleShape> poziomBtns;
-    std::vector<sf::RectangleShape> poziomBtns;
+
 
  std::array<sf::Color, 3> levelColors = {
      sf::Color(50, 100, 200),
@@ -162,7 +162,6 @@ std::vector<sf::RectangleShape> poziomBtns;
  float levelBtnStartX = szerokosc / 2.f - levelBtnSpacing;
 for (int i = 0; i < 3; ++i) {
     sf::RectangleShape btn(sf::Vector2f(100.f, 60.f));
-    btn.setFillColor(sf::Color(50 + i * 50, 100, 200 - i * 30));
     btn.setFillColor(levelColors[i]);
     btn.setOutlineColor(sf::Color::White);
     btn.setOutlineThickness(2.f);
@@ -267,7 +266,7 @@ for (int i = 0; i < 3; ++i) {
     resetGry();
     std::random_device rd;
     std::mt19937 gen(rd());
-/* ===== LEVEL SELECT TEXTY ===== */
+/* ===== LEVEL SELECT texty ===== */
 sf::Text poziomText;
 poziomText.setFont(font);
 poziomText.setString("WYBIERZ POZIOM TRUDNOSCI");
@@ -439,16 +438,15 @@ for (int i = 0; i < 3; ++i) {
         }
         else if (aktualnyStan == Stan::LEVEL) {
     // Hover dla 3 przycisków poziomów
-        for (int i = 0; i < 3; ++i) {
-        if (poziomBtns[i].getGlobalBounds().contains(mousePos)) {
-            poziomBtns[i].setFillColor(sf::Color(255, 255, 150));
-            poziomBtns[i].setScale(sf::Vector2f(1.1f, 1.1f));
-        } else {
-            poziomBtns[i].setFillColor(sf::Color(50 + i * 50, 100, 200 - i * 30));
-            poziomBtns[i].setFillColor(levelColors[i]);
-            poziomBtns[i].setScale(sf::Vector2f(1.0f, 1.0f));
-        }
+      for (int i = 0; i < 3; ++i) {
+    if (poziomBtns[i].getGlobalBounds().contains(mousePos)) {
+        poziomBtns[i].setScale(1.1f, 1.1f);
+        poziomBtns[i].setFillColor(sf::Color(255, 255, 150));
+    } else {
+        poziomBtns[i].setScale(1.f, 1.f);
+        poziomBtns[i].setFillColor(levelColors[i]);
     }
+}
     
     // Hover dla przycisku powrotu
         if (btnBackFromLevel.getGlobalBounds().contains(mousePos)) {
@@ -565,33 +563,32 @@ for (int i = 0; i < 3; ++i) {
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             window.draw(kulka);
         }
-            else if (aktualnyStan == Stan::LEVEL) {
+           else if (aktualnyStan == Stan::LEVEL) {
     window.draw(poziomSelectBg);
-    
-    // Rysuj 3 przyciski poziomów
-    for (const auto& btn : poziomBtns) {
-        if (i == zaznaczonyPoziom)
-       poziomBtns[i].setOutlineColor(sf::Color::Yellow);
-    else
-        poziomBtns[i].setOutlineColor(sf::Color::White);
 
-        window.draw(btn);
-    }
-    
+    // Rysuj 3 przyciski poziomów
+  for (int i = 0; i < 3; ++i) {
+    poziomBtns[i].setOutlineColor(
+        (i == zaznaczonyPoziom) ? sf::Color::Yellow : sf::Color::White
+    );
+    window.draw(poziomBtns[i]);
+}
+
+
     // Rysuj przycisk powrotu
     window.draw(btnBackFromLevel);
-    
+
     // Dodaj teksty
     sf::Text poziomText;
     poziomText.setFont(font);
     poziomText.setString("WYBIERZ POZIOM TRUDNOSCI");
     poziomText.setCharacterSize(24);
     poziomText.setFillColor(sf::Color::White);
-    poziomText.setOrigin(poziomText.getLocalBounds().width / 2.f, 
+    poziomText.setOrigin(poziomText.getLocalBounds().width / 2.f,
                          poziomText.getLocalBounds().height / 2.f);
     poziomText.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 80.f));
     window.draw(poziomText);
-    
+
     // Dodaj numery poziomów
     for (int i = 0; i < 3; ++i) {
         sf::Text nrText;
@@ -599,12 +596,16 @@ for (int i = 0; i < 3; ++i) {
         nrText.setString(std::to_string(i + 1));
         nrText.setCharacterSize(28);
         nrText.setFillColor(sf::Color::White);
-        nrText.setOrigin(nrText.getLocalBounds().width / 2.f, 
+        nrText.setOrigin(nrText.getLocalBounds().width / 2.f,
                          nrText.getLocalBounds().height / 2.f);
         nrText.setPosition(poziomBtns[i].getPosition());
         window.draw(nrText);
     }
 }
+
+
+    
+
         else if (aktualnyStan == Stan::PAUSE) {
             // Rysujemy grę pod spodem
             window.draw(paletka);
