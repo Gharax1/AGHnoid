@@ -271,6 +271,7 @@ int main() {
     sf::Vector2f predkosc(0.f, 0.f);
     bool czyW_Ruchu = false;
     float moc = 6.0f;
+    float bonus = 1.0f;
 
     struct Bloczki {
         sf::RectangleShape shape;
@@ -279,17 +280,28 @@ int main() {
     };
     std::vector<Bloczki> bloczki;
 
+
     sf::Texture blokTexture;
     if (blokTexture.loadFromFile("Sprites/bloczki_4.png")) {}
 
+    struct Power {
+        sf::CircleShape shape;
+        bool used = false;
+        float factor;
+        bool moving = false;
+    };
+    std::vector<Power> power;
+
 
     auto resetGry = [&](int lvl) {
+        moc = 6.0f;
         points = 0;
         kulka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
         paletka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc - 40.f));
         predkosc = sf::Vector2f(0.f, 0.f);
         czyW_Ruchu = false;
 
+        power.clear();
         bloczki.clear();
         
         // LOGIKA DLA LVL 3
@@ -537,6 +549,7 @@ int main() {
             else if (paletka.getPosition().x + 60.f > szerokosc)
                 paletka.setPosition(sf::Vector2f(szerokosc - 60.f, paletka.getPosition().y));
 
+            
 
             if (czyW_Ruchu) {
                 kulka.move(predkosc);
@@ -569,8 +582,35 @@ int main() {
                         if (b.health_points == 0) {
                             points++;
                             b.zniszczony = true;
+                            if (rand() % 2) {
+                                Power pow;
+                                pow.shape.setRadius(16.0f);
+                                pow.shape.setFillColor(sf::Color::Red);
+                                pow.shape.setOrigin(pow.shape.getGeometricCenter());
+                                pow.shape.setPosition(b.shape.getPosition());
+                                pow.moving = true;
+                                if (rand() % 2) {
+                                    pow.factor = moc * 0.15;
+                                }
+                                else {
+                                    pow.factor = -moc * 0.15f;
+                                }
+                                power.push_back(pow);
+                            }
                         }
                         predkosc.y = -predkosc.y;
+                        break;
+                    }
+                }
+                for (auto& pow : power) {
+                    if (pow.moving) {
+                        pow.shape.move({ 0.0f, 1.0f });
+                    }
+                    if (!pow.used && paletka.getGlobalBounds().findIntersection(pow.shape.getGlobalBounds())) {
+                        pow.used = true;
+                        hitSound.play();
+                        moc += pow.factor;
+                        if (moc < 3.0f) moc = 5.0f;
                         break;
                     }
                 }
@@ -599,11 +639,13 @@ int main() {
         else if (aktualnyStan == Stan::GRA) {
             window.draw(paletka);
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
+            for (const auto& pow : power) if (!pow.used) window.draw(pow.shape);
             window.draw(kulka);
         }
         else if (aktualnyStan == Stan::PAUSE) {
             window.draw(paletka);
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
+            for (const auto& pow : power) if (!pow.used) window.draw(pow.shape);
             window.draw(kulka);
             window.draw(dimmer);
             window.draw(btnResume);
