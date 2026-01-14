@@ -271,7 +271,6 @@ int main() {
     sf::Vector2f predkosc(0.f, 0.f);
     bool czyW_Ruchu = false;
     float moc = 6.0f;
-    float bonus = 1.0f;
 
     struct Bloczki {
         sf::RectangleShape shape;
