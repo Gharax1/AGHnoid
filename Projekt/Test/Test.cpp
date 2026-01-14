@@ -13,6 +13,8 @@ enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE };
 int points = 0;
 int wybranyPoziom = 1;
 
+int combo=0;
+
 
 int main() {
     const unsigned int szerokosc = 800;
@@ -259,6 +261,12 @@ int main() {
     btnGameOverExit.setOrigin(sf::Vector2f(125.f, 30.f));
     btnGameOverExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
 
+    // -------------- COMBO ----------------------
+    sf::Text ComboText(font);
+    ComboText.setCharacterSize(24);
+    ComboText.setFillColor(sf::Color::Red);
+    ComboText.setOutlineColor(sf::Color::Black);
+    ComboText.setOutlineThickness(5.0f);
 
     // --- GRACZ I OBIEKTY ---
     sf::Texture kulkaTexture;
@@ -308,6 +316,7 @@ int main() {
     auto resetGry = [&](int lvl) {
         moc = 6.0f;
         points = 0;
+        combo=0;
         kulka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
         paletka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc - 40.f));
         predkosc = sf::Vector2f(0.f, 0.f);
@@ -546,6 +555,42 @@ int main() {
                 btnPauseExit.setScale(sf::Vector2f(1.0f, 1.0f));
             }
         }
+        if (aktualnyStan == Stan::LOSE) {
+            if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
+                btnGameOverExit.setFillColor(sf::Color(220, 220, 220));
+                btnGameOverExit.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnGameOverExit.setFillColor(sf::Color::White);
+                btnGameOverExit.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
+                btnGameOverRestart.setFillColor(sf::Color(220, 220, 220));
+                btnGameOverRestart.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnGameOverRestart.setFillColor(sf::Color::White);
+                btnGameOverRestart.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+        }
+        if (aktualnyStan == Stan::WIN) {
+            if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
+                btnGameOverExit.setFillColor(sf::Color(220, 220, 220));
+                btnGameOverExit.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnGameOverExit.setFillColor(sf::Color::White);
+                btnGameOverExit.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
+                btnGameOverRestart.setFillColor(sf::Color(220, 220, 220));
+                btnGameOverRestart.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnGameOverRestart.setFillColor(sf::Color::White);
+                btnGameOverRestart.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+        }
 
 
         // --- LOGIKA GRY ---
@@ -604,6 +649,7 @@ int main() {
 
                 for (auto& b : bloczki) {
                     if (!b.zniszczony && kulka.getGlobalBounds().findIntersection(b.shape.getGlobalBounds())) {
+                        combo++;
                         b.health_points--;
                         hitSound.play();
                         if (b.health_points == 0) {
@@ -669,6 +715,12 @@ int main() {
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             for (const auto& pow : power) if (!pow.used) window.draw(pow.shape);
             window.draw(kulka);
+            if (combo >= 2)
+            {
+                ComboText.setString("COMBO x" + std::to_string(combo));
+                ComboText.setPosition(sf::Vector2f(szerokosc - 200.f, wysokosc/2-100.f));
+                window.draw(ComboText);
+            }
         }
         else if (aktualnyStan == Stan::PAUSE) {
             window.draw(paletka);
