@@ -23,6 +23,13 @@ int main() {
 
     Stan aktualnyStan = Stan::MENU;
 
+    // --- POWER UPY ---
+    sf::Texture powerUp;
+    if (!powerUp.loadFromFile("Sprites/power_up.png")) {
+        return -1;
+    }
+    powerUp.setSmooth(true);
+
 
     // --- CZCIONKA ---
     sf::Font font;
@@ -101,6 +108,11 @@ int main() {
     if (!hitBuffer.loadFromFile("Sounds/Hit/hit1.wav")) {}
     sf::Sound hitSound(hitBuffer);
     hitSound.setVolume(50.f);
+
+    sf::SoundBuffer powerBuffer;
+    if (!powerBuffer.loadFromFile("Sounds/PowerUp/powerUp.wav")) {}
+    sf::Sound powerSound(powerBuffer);
+    powerSound.setVolume(50.f);
 
     sf::Music menuMusic;
     if (menuMusic.openFromFile("Music/menu.mp3")) {
@@ -283,6 +295,7 @@ int main() {
     sf::Texture blokTexture;
     if (blokTexture.loadFromFile("Sprites/bloczki_4.png")) {}
 
+    // Power upy
     struct Power {
         sf::CircleShape shape;
         bool used = false;
@@ -566,11 +579,26 @@ int main() {
                     gameMusic.stop();
                 }
 
+
+                // logika odbić
                 if (kulka.getGlobalBounds().findIntersection(paletka.getGlobalBounds())) {
-                    float kat = (ruchX == 0) ? 270.f : (ruchX < 0 ? 220.f : 320.f);
+                    float kat;
+
+                    if (ruchX == 0) {
+                        // Jeśli paletka stoi, losujemy kąt z przedziału 220 (lewo-góra) do 320 (prawo-góra)
+                        std::uniform_real_distribution<float> dist(220.f, 320.f);
+                        kat = dist(gen);
+                    }
+                    else {
+                        // Jeśli paletka się rusza, narzucamy stały kąt w stronę ruchu
+                        kat = (ruchX < 0) ? 220.f : 320.f;
+                    }
+
                     float rad = kat * 3.14159f / 180.f;
-                    predkosc = sf::Vector2f(std::cos(rad) * moc, std::sin(rad) * moc);
-                    kulka.setPosition(sf::Vector2f(pos.x, paletka.getPosition().y - 15.f));
+                    predkosc = { std::cos(rad) * moc, std::sin(rad) * moc };
+
+                    // Poprawka pozycji, żeby kulka nie utknęła w paletce
+                    kulka.setPosition({ pos.x, paletka.getPosition().y - 15.f });
                 }
 
 
@@ -581,17 +609,18 @@ int main() {
                         if (b.health_points == 0) {
                             points++;
                             b.zniszczony = true;
-                            if (rand() % 2) {
+                            if (rand() % 2 == 0) {
                                 Power pow;
                                 pow.shape.setRadius(16.0f);
-                                pow.shape.setFillColor(sf::Color::Red);
+                                pow.shape.setTexture(&powerUp);
+                                pow.shape.setFillColor(sf::Color::White);
                                 pow.shape.setOrigin(pow.shape.getGeometricCenter());
                                 pow.shape.setPosition(b.shape.getPosition());
                                 pow.moving = true;
-                                if (rand() % 2) {
-                                    pow.factor = moc * 0.15;
+                                if (rand() % 2 == 0) {
+                                    pow.factor = moc * 0.15f;
                                 }
-                                else {
+                                else if (moc >= 6.0f) { // kulka nie porusza sie wolniej niz poczatkowa predkosc
                                     pow.factor = -moc * 0.15f;
                                 }
                                 power.push_back(pow);
@@ -603,11 +632,11 @@ int main() {
                 }
                 for (auto& pow : power) {
                     if (pow.moving) {
-                        pow.shape.move({ 0.0f, 1.0f });
+                        pow.shape.move({ 0.0f, 3.0f }); // predkosc power upu
                     }
                     if (!pow.used && paletka.getGlobalBounds().findIntersection(pow.shape.getGlobalBounds())) {
                         pow.used = true;
-                        hitSound.play();
+                        powerSound.play();
                         moc += pow.factor;
                         if (moc < 3.0f) moc = 5.0f;
                         break;
