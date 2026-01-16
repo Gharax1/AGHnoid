@@ -4,6 +4,8 @@
 #include <random>
 #include <optional>
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 // Definiujemy możliwe stany gry
 enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE };
@@ -15,11 +17,68 @@ int wybranyPoziom = 1;
 
 int combo=0;
 
+// LEVEL UP SYSTEM
+
+int comboTempMax = 0; // maksymalna wartosc jednego combo
+int combosum = 0; // suma wszystkich combo
+int xpsum = points + 2 * combosum; // 1 xp za zniszczenie bloku, 2 xp za kazdy punkt combo
+int score = 100 * points + 10 * combosum; // 100 punktow za kazdy zniszczony blok, 10 punktow za kazdy punkt combo
+
+struct Player {      // struktura gracza do zapisu
+    int level = 1;
+    int xp = 0;
+    int xpToNext = 100;
+    int highScore = 0;
+};
+
+void levelUp(Player& p)  // funkcja zwiekszajaca level gracza i xp potrzebny do levelup
+{
+    p.level++;
+    p.xpToNext = static_cast<int>(p.xpToNext * 1.25f);
+}
+
+void addXP(Player& p, int amount)  // funkcja dodajaca xp dla gracza
+{
+    p.xp += amount;
+    while (p.xp >= p.xpToNext)
+    {
+        p.xp -= p.xpToNext;
+        levelUp(p);
+    }
+}
+void saveGame(const Player& p)    // zapis profilu
+{
+    std::ofstream file("save.txt");
+    if (!file) return;
+
+    file << p.level << "\n";
+    file << p.xp << "\n";
+    file << p.xpToNext << "\n";
+    file << p.highScore << "\n";
+    file.close();
+}
+
+bool loadGame(Player& p)    // odczyt profilu
+{
+    std::ifstream file("save.txt");
+    if (!file) return false;
+
+    file >> p.level;
+    file >> p.xp;
+    file >> p.xpToNext;
+    file >> p.highScore;
+    file.close();
+    return true;
+}
+
+
 
 int main() {
     const unsigned int szerokosc = 800;
     const unsigned int wysokosc = 600;
 
+    Player player;
+    loadGame(player);
     sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "Arkanoid z Menu - SFML 3");
     window.setFramerateLimit(60);
 
@@ -38,7 +97,10 @@ int main() {
     if (!font.openFromFile("Fonts/arial.ttf")) {
         return -1;
     }
-
+    sf::Font PixelFont;
+    if (!PixelFont.openFromFile("Fonts/PixelifySans-Regular.ttf")) {
+        return -1;
+    }
 
     // --- TŁO ---
     sf::Texture backgroundTexture;
@@ -52,7 +114,55 @@ int main() {
         static_cast<float>(szerokosc) / rozmiarObrazka.x,
         static_cast<float>(wysokosc) / rozmiarObrazka.y
     ));
+    // -------- XP BAR ------------
+    int level = player.level;
+    int xp = player.xp;
+    int xpToNext = player.xpToNext;
+
+    float percent = static_cast<float>(xp) / xpToNext;
+    percent = std::clamp(percent, 0.f, 1.f);
     
+    sf::RectangleShape xpBarBg;
+    xpBarBg.setSize(sf::Vector2f(310.f,30.f ));
+    xpBarBg.setFillColor(sf::Color(0x00, 0x6b, 0x3b));
+    xpBarBg.setPosition(sf::Vector2f(15.f, wysokosc-50.f));
+    xpBarBg.setOutlineColor(sf::Color::Black);
+    xpBarBg.setOutlineThickness(5.f);
+
+    sf::RectangleShape xpBarBg1;
+    xpBarBg1.setSize(sf::Vector2f(300.f, 40.f));
+    xpBarBg1.setFillColor(sf::Color(0x00, 0x6b, 0x3b));
+    xpBarBg1.setPosition(sf::Vector2f(20.f, wysokosc - 55.f));
+    xpBarBg1.setOutlineColor(sf::Color::Black);
+    xpBarBg1.setOutlineThickness(5.f);
+
+    sf::RectangleShape xpBarBg2;
+    xpBarBg2.setSize(sf::Vector2f(320.f, 20.f));
+    xpBarBg2.setFillColor(sf::Color(0x00, 0x6b, 0x3b));
+    xpBarBg2.setPosition(sf::Vector2f(10.f, wysokosc - 45.f));
+    xpBarBg2.setOutlineColor(sf::Color::Black);
+    xpBarBg2.setOutlineThickness(5.f);
+
+    sf::RectangleShape xpBarFill;
+    xpBarFill.setSize(sf::Vector2f(300.f * percent, 20.f));
+    xpBarFill.setFillColor(sf::Color(0xb0, 0x10, 0x28));
+    xpBarFill.setPosition(sf::Vector2f(20.f, wysokosc - 45.f));
+
+    sf::Text levelText(PixelFont);
+    levelText.setString("LEVEL " + std::to_string(level));
+    levelText.setCharacterSize(32.f);
+    levelText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
+    levelText.setOutlineColor(sf::Color::Black);
+    levelText.setOutlineThickness(5.f);
+    levelText.setPosition(sf::Vector2f(10.f,wysokosc-100.f));
+
+    sf::Text HighscoreText(PixelFont);
+    HighscoreText.setString("Highscore: " + std::to_string(player.highScore));
+    HighscoreText.setCharacterSize(32.f);
+    HighscoreText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
+    HighscoreText.setOutlineColor(sf::Color::Black);
+    HighscoreText.setOutlineThickness(5.f);
+    HighscoreText.setPosition(sf::Vector2f(10.f, 10.f));
 
     // ---- GAME OVER -------
 
@@ -252,19 +362,35 @@ int main() {
     btnGameOverRestart.setTexture(&texBtnRestart);
     btnGameOverRestart.setFillColor(sf::Color::White);
     btnGameOverRestart.setOrigin(sf::Vector2f(125.f,30.f));
-    btnGameOverRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 30.f));
+    btnGameOverRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f+40.f));
 
 
     sf::RectangleShape btnGameOverExit(sf::Vector2f(250.f, 60.f));
     btnGameOverExit.setTexture(&texBtnExit);
     btnGameOverExit.setFillColor(sf::Color::White);
     btnGameOverExit.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnGameOverExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
+    btnGameOverExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 120.f));
+
+    sf::Text ScoreText(PixelFont);
+    ScoreText.setCharacterSize(32.f);
+    ScoreText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
+    ScoreText.setOutlineColor(sf::Color::Black);
+    ScoreText.setOutlineThickness(5.0f);
+    ScoreText.setPosition(sf::Vector2f(szerokosc / 2 - 85.f, wysokosc / 2 - 90.f));
+    ScoreText.setString("Score: " + std::to_string(score));
+
+    sf::Text xpText(PixelFont);
+    xpText.setCharacterSize(32.f);
+    xpText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
+    xpText.setOutlineColor(sf::Color::Black);
+    xpText.setOutlineThickness(5.0f);
+    xpText.setPosition(sf::Vector2f(szerokosc / 2 - 85.f, wysokosc / 2 - 40.f));
+    xpText.setString("XP gained: " + std::to_string(xpsum));
 
     // -------------- COMBO ----------------------
-    sf::Text ComboText(font);
-    ComboText.setCharacterSize(24);
-    ComboText.setFillColor(sf::Color::Red);
+    sf::Text ComboText(PixelFont);
+    ComboText.setCharacterSize(32);
+    ComboText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     ComboText.setOutlineColor(sf::Color::Black);
     ComboText.setOutlineThickness(5.0f);
 
@@ -303,6 +429,7 @@ int main() {
     sf::Texture blokTexture;
     if (blokTexture.loadFromFile("Sprites/bloczki_4.png")) {}
 
+
     // Power upy
     struct Power {
         sf::CircleShape shape;
@@ -317,6 +444,8 @@ int main() {
         moc = 6.0f;
         points = 0;
         combo=0;
+        combosum = 0;
+        comboTempMax = 0;
         kulka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
         paletka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc - 40.f));
         predkosc = sf::Vector2f(0.f, 0.f);
@@ -374,8 +503,10 @@ int main() {
 
 
         while (const std::optional event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) window.close();
-
+            if (event->is<sf::Event::Closed>()) {
+                window.close();
+                saveGame(player);
+            }
             if (event->is<sf::Event::KeyPressed>()) {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
                     if (aktualnyStan == Stan::GRA) {
@@ -391,6 +522,7 @@ int main() {
 
 
             if (aktualnyStan == Stan::MENU) {
+                loadGame(player);
                 if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseEvent->button == sf::Mouse::Button::Left) {
                         if (btnPlay.getGlobalBounds().contains(mousePos)) {
@@ -398,6 +530,7 @@ int main() {
                         }
                         if (btnExit.getGlobalBounds().contains(mousePos)) {
                             window.close();
+                            saveGame(player);
                         }
                     }
                 }
@@ -618,16 +751,30 @@ int main() {
 
                 if (pos.y + promien >= wysokosc) {
                     aktualnyStan = Stan::LOSE;
-                    gameMusic.stop();
+                    gameMusic.stop(); 
+                    combosum += comboTempMax;
+                    xpsum=points + (2 * combosum);
+                    score = (points * 100) + (10 * combosum);
+                    addXP(player, xpsum);
+                    if (score > player.highScore) player.highScore = score;
+                    saveGame(player);
                 } else if (points >= (int)bloczki.size()) {
                     aktualnyStan = Stan::WIN;
                     gameMusic.stop();
+                    combosum += comboTempMax;
+                    xpsum = points + (2 * combosum);
+                    score = (points * 100) + (10 * combosum);
+                    addXP(player, xpsum);
+                    if (score > player.highScore) player.highScore = score;
+                    saveGame(player);
                 }
 
 
                 // logika odbić
                 if (kulka.getGlobalBounds().findIntersection(paletka.getGlobalBounds())) {
                     combo=0;
+                    combosum += comboTempMax;
+                    comboTempMax = 0;
                     float kat;
 
                     if (ruchX == 0) {
@@ -698,9 +845,20 @@ int main() {
         window.draw(backgroundSprite);
 
         if (aktualnyStan == Stan::MENU) {
+            float percent = static_cast<float>(player.xp) / player.xpToNext;
+            percent = std::clamp(percent, 0.f, 1.f);
+            xpBarFill.setSize(sf::Vector2f(300.f * percent, 20.f));
+            levelText.setString("LEVEL " + std::to_string(level));
+            HighscoreText.setString("Highscore: " + std::to_string(player.highScore));
             window.draw(titleSprite);
             window.draw(btnPlay);
             window.draw(btnExit);
+            window.draw(xpBarBg2);
+            window.draw(xpBarBg1);
+            window.draw(xpBarBg);
+            window.draw(xpBarFill);
+            window.draw(levelText);
+            window.draw(HighscoreText);
         }
         else if (aktualnyStan == Stan::LEVEL) {
             window.draw(btnLvl1);
@@ -716,8 +874,9 @@ int main() {
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             for (const auto& pow : power) if (!pow.used) window.draw(pow.shape);
             window.draw(kulka);
-            if (combo >= 2)
+            if (combo >= 3)
             {
+                comboTempMax = combo;
                 ComboText.setString("COMBO x" + std::to_string(combo));
                 ComboText.setPosition(sf::Vector2f(szerokosc - 200.f, wysokosc/2-100.f));
                 window.draw(ComboText);
@@ -734,16 +893,24 @@ int main() {
             window.draw(btnPauseExit);
         }
         else if (aktualnyStan == Stan::LOSE) {
+            ScoreText.setString("Score: " + std::to_string(score));
+            xpText.setString("XP gained: " + std::to_string(xpsum));
             window.draw(dimmer);
             window.draw(GameOverSprite);
             window.draw(btnGameOverRestart);
             window.draw(btnGameOverExit);
+            window.draw(ScoreText);
+            window.draw(xpText);
         }
         else if (aktualnyStan == Stan::WIN) {
+            ScoreText.setString("Score: " + std::to_string(score));
+            xpText.setString("XP gained: " + std::to_string(xpsum));
             window.draw(dimmer);
             window.draw(WinSprite);
             window.draw(btnGameOverRestart);
             window.draw(btnGameOverExit);
+            window.draw(ScoreText);
+            window.draw(xpText);
         }
 
         window.display();
