@@ -627,6 +627,7 @@ int main() {
 
                 // logika odbić
                 if (kulka.getGlobalBounds().findIntersection(paletka.getGlobalBounds())) {
+                    combo=0;
                     float kat;
 
                     if (ruchX == 0) {
