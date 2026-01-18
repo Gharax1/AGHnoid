@@ -28,6 +28,15 @@ int combo = 0;
 sf::Keyboard::Key left = sf::Keyboard::Key::Left;
 sf::Keyboard::Key right = sf::Keyboard::Key::Right;
 
+//Szyfrowanie
+int szyfrowanie(int dane) {
+    return dane + 111;
+}
+
+int deszyfrowanie(int dane) {
+    return dane - 111;
+}
+
 // LEVEL UP SYSTEM
 int comboTempMax = 0; // maksymalna wartosc jednego combo
 int combosum = 0; // suma wszystkich combo
@@ -56,27 +65,44 @@ void addXP(Player& p, int amount)
         levelUp(p);
     }
 }
+
 void saveGame(const Player& p)
 {
+    int temp;
     std::ofstream file("save.txt");
     if (!file) return;
 
-    file << p.level << "\n";
-    file << p.xp << "\n";
-    file << p.xpToNext << "\n";
-    file << p.highScore << "\n";
+    
+
+    temp = szyfrowanie(p.level);
+    file << temp << "\n";
+    temp = szyfrowanie(p.xp);
+    file << temp << "\n";
+    temp = szyfrowanie(p.xpToNext);
+    file << temp << "\n";
+    temp = szyfrowanie(p.highScore);
+    file << temp << "\n";
     file.close();
 }
 
 bool loadGame(Player& p)
 {
+    int temp;
     std::ifstream file("save.txt");
     if (!file) return false;
 
-    file >> p.level;
-    file >> p.xp;
-    file >> p.xpToNext;
-    file >> p.highScore;
+    file >> temp;
+    temp = deszyfrowanie(temp);
+    p.level = temp;
+    file >> temp;
+    temp = deszyfrowanie(temp);
+    p.xp = temp;
+    file >> temp;
+    temp = deszyfrowanie(temp);
+    p.xpToNext = temp;
+    file >> temp;
+    temp = deszyfrowanie(temp);
+    p.highScore = temp;
     file.close();
     return true;
 }
