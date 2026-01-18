@@ -10,43 +10,44 @@
 // Definiujemy możliwe stany gry
 enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE, OPCJE };
 
-
 // Wybrany poziom muzyki
-
 int music = 2;
 int controls = 0;
+
+// Zmienne do przechowywania aktualnej głośności (aby stosować je do nowych utworów)
+float currentMenuVol = 30.f;
+float currentGameVol = 10.f;
 
 // Licznik punktów
 int points = 0;
 int wybranyPoziom = 1;
 
-int combo=0;
+int combo = 0;
 
 //Controls
 sf::Keyboard::Key left = sf::Keyboard::Key::Left;
 sf::Keyboard::Key right = sf::Keyboard::Key::Right;
 
 // LEVEL UP SYSTEM
-
 int comboTempMax = 0; // maksymalna wartosc jednego combo
 int combosum = 0; // suma wszystkich combo
 int xpsum = points + 2 * combosum; // 1 xp za zniszczenie bloku, 2 xp za kazdy punkt combo
 int score = 100 * points + 10 * combosum; // 100 punktow za kazdy zniszczony blok, 10 punktow za kazdy punkt combo
 
-struct Player {      // struktura gracza do zapisu
+struct Player {
     int level = 1;
     int xp = 0;
     int xpToNext = 100;
     int highScore = 0;
 };
 
-void levelUp(Player& p)  // funkcja zwiekszajaca level gracza i xp potrzebny do levelup
+void levelUp(Player& p)
 {
     p.level++;
     p.xpToNext = static_cast<int>(p.xpToNext * 1.25f);
 }
 
-void addXP(Player& p, int amount)  // funkcja dodajaca xp dla gracza
+void addXP(Player& p, int amount)
 {
     p.xp += amount;
     while (p.xp >= p.xpToNext)
@@ -55,7 +56,7 @@ void addXP(Player& p, int amount)  // funkcja dodajaca xp dla gracza
         levelUp(p);
     }
 }
-void saveGame(const Player& p)    // zapis profilu
+void saveGame(const Player& p)
 {
     std::ofstream file("save.txt");
     if (!file) return;
@@ -67,7 +68,7 @@ void saveGame(const Player& p)    // zapis profilu
     file.close();
 }
 
-bool loadGame(Player& p)    // odczyt profilu
+bool loadGame(Player& p)
 {
     std::ifstream file("save.txt");
     if (!file) return false;
@@ -79,8 +80,6 @@ bool loadGame(Player& p)    // odczyt profilu
     file.close();
     return true;
 }
-
-
 
 int main() {
     const unsigned int szerokosc = 800;
@@ -96,7 +95,7 @@ int main() {
     // --- POWER UPY ---
     sf::Texture powerUp;
     if (!powerUp.loadFromFile("Sprites/power_up.png")) {
-        return -1;
+        // return -1; // Opcjonalnie obsługa błędu
     }
     powerUp.setSmooth(true);
 
@@ -104,11 +103,11 @@ int main() {
     // --- CZCIONKA ---
     sf::Font font;
     if (!font.openFromFile("Fonts/arial.ttf")) {
-        return -1;
+        // return -1;
     }
     sf::Font PixelFont;
     if (!PixelFont.openFromFile("Fonts/PixelifySans-Regular.ttf")) {
-        return -1;
+        // return -1;
     }
 
     // --- TŁO ---
@@ -130,11 +129,11 @@ int main() {
 
     float percent = static_cast<float>(xp) / xpToNext;
     percent = std::clamp(percent, 0.f, 1.f);
-    
+
     sf::RectangleShape xpBarBg;
-    xpBarBg.setSize(sf::Vector2f(310.f,30.f ));
+    xpBarBg.setSize(sf::Vector2f(310.f, 30.f));
     xpBarBg.setFillColor(sf::Color(0x00, 0x6b, 0x3b));
-    xpBarBg.setPosition(sf::Vector2f(15.f, wysokosc-50.f));
+    xpBarBg.setPosition(sf::Vector2f(15.f, wysokosc - 50.f));
     xpBarBg.setOutlineColor(sf::Color::Black);
     xpBarBg.setOutlineThickness(5.f);
 
@@ -163,7 +162,7 @@ int main() {
     levelText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     levelText.setOutlineColor(sf::Color::Black);
     levelText.setOutlineThickness(5.f);
-    levelText.setPosition(sf::Vector2f(10.f,wysokosc-100.f));
+    levelText.setPosition(sf::Vector2f(10.f, wysokosc - 100.f));
 
     sf::Text HighscoreText(PixelFont);
     HighscoreText.setString("Highscore: " + std::to_string(player.highScore));
@@ -176,9 +175,9 @@ int main() {
     // ---- GAME OVER -------
 
     sf::Texture GameOverTexture;
-    if(!GameOverTexture.loadFromFile("Sprites/game_over.png")){}
+    if (!GameOverTexture.loadFromFile("Sprites/game_over.png")) {}
     GameOverTexture.setSmooth(true);
-    
+
     float GOTwidth = static_cast<float>(GameOverTexture.getSize().x) / 2.f;
     float GOTheight = static_cast<float>(GameOverTexture.getSize().y) / 2.f;
 
@@ -190,7 +189,7 @@ int main() {
 
     // ------- WIN ----------
     sf::Texture WinTexture;
-    if (!WinTexture.loadFromFile("Sprites/game_over.png")) {}
+    if (!WinTexture.loadFromFile("Sprites/game_over.png")) {} // Możesz tu dodać oddzielną grafikę "You Win"
     WinTexture.setSmooth(true);
 
     float WinTwidth = static_cast<float>(WinTexture.getSize().x) / 2.f;
@@ -224,7 +223,9 @@ int main() {
     int currentTitleFrame = 0;
 
 
+    // ==================================================
     // --- AUDIO ---
+    // ==================================================
     sf::SoundBuffer hitBuffer;
     if (!hitBuffer.loadFromFile("Sounds/Hit/hit1.wav")) {}
     sf::Sound hitSound(hitBuffer);
@@ -235,18 +236,58 @@ int main() {
     sf::Sound powerSound(powerBuffer);
     powerSound.setVolume(50.f);
 
+    // --- MUZYKA ---
     sf::Music menuMusic;
     if (menuMusic.openFromFile("Music/menu.mp3")) {
         menuMusic.setLooping(true);
-        menuMusic.setVolume(30.f);
+        menuMusic.setVolume(currentMenuVol);
         menuMusic.play();
     }
 
-    sf::Music gameMusic;
-    if (gameMusic.openFromFile("Music/lvl1.mp3")) {
-        gameMusic.setLooping(true);
-        gameMusic.setVolume(10.f);
+    // Muzyka dla poziomów
+    sf::Music musicLvl1;
+    if (musicLvl1.openFromFile("Music/lvl1.mp3")) {
+        musicLvl1.setLooping(true);
+        musicLvl1.setVolume(currentGameVol);
     }
+
+    sf::Music musicLvl2;
+    if (musicLvl2.openFromFile("Music/lvl2.mp3")) {
+        musicLvl2.setLooping(true);
+        musicLvl2.setVolume(currentGameVol);
+    }
+
+    sf::Music musicLvl3;
+    if (musicLvl3.openFromFile("Music/lvl3.mp3")) {
+        musicLvl3.setLooping(true);
+        musicLvl3.setVolume(currentGameVol);
+    }
+
+    // Muzyka Win / Lose
+    sf::Music musicWin;
+    if (musicWin.openFromFile("Music/win.mp3")) {
+        musicWin.setLooping(false); 
+        musicWin.setVolume(currentGameVol);
+    }
+
+    sf::Music musicLose;
+    if (musicLose.openFromFile("Music/lose.mp3")) {
+        musicLose.setLooping(false);
+        musicLose.setVolume(currentGameVol);
+    }
+
+    // Wskaźnik, który będzie trzymał aktualnie graną muzykę poziomu
+    sf::Music* currentBgMusic = &musicLvl1;
+
+    // Funkcja pomocnicza do aktualizacji głośności WSZYSTKICH muzyczek gry (nie menu)
+    auto updateGameVolume = [&](float vol) {
+        currentGameVol = vol;
+        musicLvl1.setVolume(vol);
+        musicLvl2.setVolume(vol);
+        musicLvl3.setVolume(vol);
+        musicWin.setVolume(vol);
+        musicLose.setVolume(vol);
+        };
 
 
     // ==================================================
@@ -346,7 +387,7 @@ int main() {
     btnQuiet.setTexture(&texBtnLow);
     btnQuiet.setFillColor(sf::Color::White);
     btnQuiet.setOrigin(sf::Vector2f(30.f, 30.f));
-    btnQuiet.setPosition(sf::Vector2f(szerokosc/2.0f - 37.5f , wysokosc / 2.f));
+    btnQuiet.setPosition(sf::Vector2f(szerokosc / 2.0f - 37.5f, wysokosc / 2.f));
 
     sf::RectangleShape btnMedium(sf::Vector2f(60.f, 60.f));
     btnMedium.setTexture(&texBtnMedium);
@@ -383,7 +424,7 @@ int main() {
     btnArrows.setFillColor(sf::Color::White);
     btnArrows.setOrigin(sf::Vector2f(50.f, 30.f));
     btnArrows.setPosition(sf::Vector2f(szerokosc / 2.f + 60.0f, wysokosc / 2.f - 70.0f));
-    
+
     // --- ELEMENTY WYBORU POZIOMU ---
 
     sf::Texture texBtnLvl1;
@@ -402,41 +443,19 @@ int main() {
     btnLvl1.setTexture(&texBtnLvl1);
     btnLvl1.setFillColor(sf::Color::White);
     btnLvl1.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnLvl1.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 120.f)); 
-
-    /*sf::Text textLvl1(font);
-    textLvl1.setString("POZIOM 1");
-    textLvl1.setCharacterSize(30);
-    textLvl1.setFillColor(sf::Color::Black);
-    textLvl1.setOrigin(sf::Vector2f(textLvl1.getGlobalBounds().size.x / 2.f, textLvl1.getGlobalBounds().size.y / 2.f));
-    textLvl1.setPosition(btnLvl1.getPosition()); */
-
+    btnLvl1.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 120.f));
 
     sf::RectangleShape btnLvl2(sf::Vector2f(250.f, 60.f));
     btnLvl2.setTexture(&texBtnLvl2);
     btnLvl2.setFillColor(sf::Color::White);
     btnLvl2.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnLvl2.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 40.f)); 
-
-    /*sf::Text textLvl2(font);
-    textLvl2.setString("POZIOM 2");
-    textLvl2.setCharacterSize(30);
-    textLvl2.setFillColor(sf::Color::Black);
-    textLvl2.setOrigin(sf::Vector2f(textLvl2.getGlobalBounds().size.x / 2.f, textLvl2.getGlobalBounds().size.y / 2.f));
-    textLvl2.setPosition(btnLvl2.getPosition()); */
+    btnLvl2.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 40.f));
 
     sf::RectangleShape btnLvl3(sf::Vector2f(250.f, 60.f));
     btnLvl3.setTexture(&texBtnLvl3);
     btnLvl3.setFillColor(sf::Color::White);
     btnLvl3.setOrigin(sf::Vector2f(125.f, 30.f));
     btnLvl3.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 40.f));
-
-    /*sf::Text textLvl3(font);
-    textLvl3.setString("POZIOM 3");
-    textLvl3.setCharacterSize(30);
-    textLvl3.setFillColor(sf::Color::Black);
-    textLvl3.setOrigin(sf::Vector2f(textLvl3.getGlobalBounds().size.x / 2.f, textLvl3.getGlobalBounds().size.y / 2.f));
-    textLvl3.setPosition(btnLvl3.getPosition());*/
 
 
     sf::RectangleShape btnLvlBack(sf::Vector2f(250.f, 60.f));
@@ -445,7 +464,7 @@ int main() {
     btnLvlBack.setOrigin(sf::Vector2f(125.f, 30.f));
     btnLvlBack.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 120.f));
 
-   
+
 
 
     // --- ELEMENTY PAUZY ---
@@ -479,8 +498,8 @@ int main() {
     sf::RectangleShape btnGameOverRestart(sf::Vector2f(250.f, 60.f));
     btnGameOverRestart.setTexture(&texBtnRestart);
     btnGameOverRestart.setFillColor(sf::Color::White);
-    btnGameOverRestart.setOrigin(sf::Vector2f(125.f,30.f));
-    btnGameOverRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f+40.f));
+    btnGameOverRestart.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnGameOverRestart.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 40.f));
 
 
     sf::RectangleShape btnGameOverExit(sf::Vector2f(250.f, 60.f));
@@ -562,7 +581,7 @@ int main() {
     auto resetGry = [&](int lvl) {
         moc = 6.0f;
         points = 0;
-        combo=0;
+        combo = 0;
         combosum = 0;
         comboTempMax = 0;
         kulka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
@@ -572,11 +591,11 @@ int main() {
 
         power.clear();
         bloczki.clear();
-        
+
         // LOGIKA DLA LVL 3
         int rzedy = 3;
         if (lvl == 2) rzedy = 5;
-        if (lvl == 3) rzedy = 8; 
+        if (lvl == 3) rzedy = 8;
 
 
         for (int rzad = 0; rzad < rzedy; ++rzad) {
@@ -604,7 +623,7 @@ int main() {
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    
+
 
 
     // --- PĘTLA GŁÓWNA ---
@@ -633,11 +652,13 @@ int main() {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
                     if (aktualnyStan == Stan::GRA) {
                         aktualnyStan = Stan::PAUSE;
-                        gameMusic.pause();
+                        // Zatrzymaj muzykę tła
+                        if (currentBgMusic) currentBgMusic->pause();
                     }
                     else if (aktualnyStan == Stan::PAUSE) {
                         aktualnyStan = Stan::GRA;
-                        gameMusic.play();
+                        // Wznów muzykę tła
+                        if (currentBgMusic) currentBgMusic->play();
                     }
                 }
             }
@@ -668,29 +689,33 @@ int main() {
                         }
                         if (btnTurnedOff.getGlobalBounds().contains(mousePos)) {
                             menuMusic.setVolume(0.0f);
-                            gameMusic.setVolume(0.0f);
+                            currentMenuVol = 0.0f;
+                            updateGameVolume(0.0f);
                             music = 0;
                         }
                         if (btnQuiet.getGlobalBounds().contains(mousePos)) {
                             menuMusic.setVolume(15.0f);
-                            gameMusic.setVolume(5.0f);
+                            currentMenuVol = 15.0f;
+                            updateGameVolume(5.0f);
                             music = 1;
                         }
                         if (btnMedium.getGlobalBounds().contains(mousePos)) {
                             menuMusic.setVolume(30.0f);
-                            gameMusic.setVolume(10.0f);
+                            currentMenuVol = 30.0f;
+                            updateGameVolume(10.0f);
                             music = 2;
                         }
                         if (btnLoud.getGlobalBounds().contains(mousePos)) {
                             menuMusic.setVolume(45.0f);
-                            gameMusic.setVolume(15.0f);
+                            currentMenuVol = 45.0f;
+                            updateGameVolume(15.0f);
                             music = 3;
                         }
                         if (btnWSAD.getGlobalBounds().contains(mousePos)) {
                             left = sf::Keyboard::Key::A;
                             right = sf::Keyboard::Key::D;
                             controls = 0;
-                            
+
                         }
                         if (btnArrows.getGlobalBounds().contains(mousePos)) {
                             sf::Keyboard::Key left = sf::Keyboard::Key::Left;
@@ -703,28 +728,37 @@ int main() {
             else if (aktualnyStan == Stan::LEVEL) {
                 if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
                     if (mouseEvent->button == sf::Mouse::Button::Left) {
+                        bool levelSelected = false;
+
                         if (btnLvl1.getGlobalBounds().contains(mousePos)) {
                             wybranyPoziom = 1;
-                            resetGry(1);
-                            menuMusic.stop();
-                            gameMusic.play();
-                            aktualnyStan = Stan::GRA;
+                            currentBgMusic = &musicLvl1; // Wybierz muzykę lvl 1
+                            levelSelected = true;
                         }
-                        if (btnLvl2.getGlobalBounds().contains(mousePos)) {
+                        else if (btnLvl2.getGlobalBounds().contains(mousePos)) {
                             wybranyPoziom = 2;
-                            resetGry(2);
-                            menuMusic.stop();
-                            gameMusic.play();
-                            aktualnyStan = Stan::GRA;
+                            currentBgMusic = &musicLvl2; // Wybierz muzykę lvl 2
+                            levelSelected = true;
                         }
-                        // DOPISANE KLIKNIĘCIE LVL 3
-                        if (btnLvl3.getGlobalBounds().contains(mousePos)) {
+                        else if (btnLvl3.getGlobalBounds().contains(mousePos)) {
                             wybranyPoziom = 3;
-                            resetGry(3);
+                            currentBgMusic = &musicLvl3; // Wybierz muzykę lvl 3
+                            levelSelected = true;
+                        }
+
+                        if (levelSelected) {
+                            resetGry(wybranyPoziom);
                             menuMusic.stop();
-                            gameMusic.play();
+
+                            // Zatrzymaj poprzednie i włącz nową muzykę
+                            musicLvl1.stop();
+                            musicLvl2.stop();
+                            musicLvl3.stop();
+                            if (currentBgMusic) currentBgMusic->play();
+
                             aktualnyStan = Stan::GRA;
                         }
+
                         if (btnLvlBack.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::MENU;
                         }
@@ -742,17 +776,19 @@ int main() {
                     if (mouseEvent->button == sf::Mouse::Button::Left) {
                         if (btnResume.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::GRA;
-                            gameMusic.play();
+                            if (currentBgMusic) currentBgMusic->play();
                         }
                         if (btnRestart.getGlobalBounds().contains(mousePos)) {
                             resetGry(wybranyPoziom);
                             aktualnyStan = Stan::GRA;
-                            gameMusic.stop();
-                            gameMusic.play();
+                            if (currentBgMusic) {
+                                currentBgMusic->stop();
+                                currentBgMusic->play();
+                            }
                         }
                         if (btnPauseExit.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::MENU;
-                            gameMusic.stop();
+                            if (currentBgMusic) currentBgMusic->stop();
                             menuMusic.play();
                         }
                     }
@@ -764,12 +800,20 @@ int main() {
                         if (btnGameOverRestart.getGlobalBounds().contains(mousePos)) {
                             resetGry(wybranyPoziom);
                             aktualnyStan = Stan::GRA;
-                            gameMusic.stop();
-                            gameMusic.play();
+
+                            // Stop Win/Lose music i start level music
+                            musicWin.stop();
+                            musicLose.stop();
+                            if (currentBgMusic) {
+                                currentBgMusic->stop();
+                                currentBgMusic->play();
+                            }
                         }
                         if (btnGameOverExit.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::MENU;
-                            gameMusic.stop();
+                            // Stop Win/Lose music
+                            musicWin.stop();
+                            musicLose.stop();
                             menuMusic.play();
                         }
                     }
@@ -783,14 +827,16 @@ int main() {
             if (btnPlay.getGlobalBounds().contains(mousePos)) {
                 btnPlay.setFillColor(sf::Color(220, 220, 220));
                 btnPlay.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnPlay.setFillColor(sf::Color::White);
                 btnPlay.setScale(sf::Vector2f(1.0f, 1.0f));
             }
             if (btnExit.getGlobalBounds().contains(mousePos)) {
                 btnExit.setFillColor(sf::Color(220, 220, 220));
                 btnExit.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnExit.setFillColor(sf::Color::White);
                 btnExit.setScale(sf::Vector2f(1.0f, 1.0f));
             }
@@ -809,29 +855,33 @@ int main() {
             if (btnLvl1.getGlobalBounds().contains(mousePos)) {
                 btnLvl1.setFillColor(sf::Color(220, 220, 220));
                 btnLvl1.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnLvl1.setFillColor(sf::Color::White);
                 btnLvl1.setScale(sf::Vector2f(1.0f, 1.0f));
             }
             if (btnLvl2.getGlobalBounds().contains(mousePos)) {
                 btnLvl2.setFillColor(sf::Color(220, 220, 220));
                 btnLvl2.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnLvl2.setFillColor(sf::Color::White);
                 btnLvl2.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-    
+
             if (btnLvl3.getGlobalBounds().contains(mousePos)) {
                 btnLvl3.setFillColor(sf::Color(220, 220, 220));
                 btnLvl3.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnLvl3.setFillColor(sf::Color::White);
                 btnLvl3.setScale(sf::Vector2f(1.0f, 1.0f));
             }
             if (btnLvlBack.getGlobalBounds().contains(mousePos)) {
                 btnLvlBack.setFillColor(sf::Color(220, 220, 220));
                 btnLvlBack.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnLvlBack.setFillColor(sf::Color::White);
                 btnLvlBack.setScale(sf::Vector2f(1.0f, 1.0f));
             }
@@ -842,21 +892,24 @@ int main() {
             if (btnResume.getGlobalBounds().contains(mousePos)) {
                 btnResume.setFillColor(sf::Color(220, 220, 220));
                 btnResume.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnResume.setFillColor(sf::Color::White);
                 btnResume.setScale(sf::Vector2f(1.0f, 1.0f));
             }
             if (btnRestart.getGlobalBounds().contains(mousePos)) {
                 btnRestart.setFillColor(sf::Color(220, 220, 220));
                 btnRestart.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnRestart.setFillColor(sf::Color::White);
                 btnRestart.setScale(sf::Vector2f(1.0f, 1.0f));
             }
             if (btnPauseExit.getGlobalBounds().contains(mousePos)) {
                 btnPauseExit.setFillColor(sf::Color(220, 220, 220));
                 btnPauseExit.setScale(sf::Vector2f(1.05f, 1.05f));
-            } else {
+            }
+            else {
                 btnPauseExit.setFillColor(sf::Color::White);
                 btnPauseExit.setScale(sf::Vector2f(1.0f, 1.0f));
             }
@@ -996,7 +1049,7 @@ int main() {
             else if (paletka.getPosition().x + 60.f > szerokosc)
                 paletka.setPosition(sf::Vector2f(szerokosc - 60.f, paletka.getPosition().y));
 
-            
+
 
             if (czyW_Ruchu) {
                 kulka.move(predkosc);
@@ -1008,16 +1061,25 @@ int main() {
 
                 if (pos.y + promien >= wysokosc) {
                     aktualnyStan = Stan::LOSE;
-                    gameMusic.stop(); 
+
+                    // ZMIANA MUZYKI NA PRZEGRANĄ
+                    if (currentBgMusic) currentBgMusic->stop();
+                    musicLose.play();
+
                     combosum += comboTempMax;
-                    xpsum=points + (2 * combosum);
+                    xpsum = points + (2 * combosum);
                     score = (points * 100) + (10 * combosum);
                     addXP(player, xpsum);
                     if (score > player.highScore) player.highScore = score;
                     saveGame(player);
-                } else if (points >= (int)bloczki.size()) {
+                }
+                else if (points >= (int)bloczki.size()) {
                     aktualnyStan = Stan::WIN;
-                    gameMusic.stop();
+
+                    // ZMIANA MUZYKI NA WYGRANĄ
+                    if (currentBgMusic) currentBgMusic->stop();
+                    musicWin.play();
+
                     combosum += comboTempMax;
                     xpsum = points + (2 * combosum);
                     score = (points * 100) + (10 * combosum);
@@ -1029,7 +1091,7 @@ int main() {
 
                 // logika odbić
                 if (kulka.getGlobalBounds().findIntersection(paletka.getGlobalBounds())) {
-                    combo=0;
+                    combo = 0;
                     combosum += comboTempMax;
                     comboTempMax = 0;
                     float kat;
@@ -1088,7 +1150,11 @@ int main() {
                     }
                     if (!b.zniszczony && b.shape.getGlobalBounds().findIntersection(paletka.getGlobalBounds())) {
                         aktualnyStan = Stan::LOSE;
-                        gameMusic.stop();
+
+                        // ZMIANA MUZYKI NA LOSE
+                        if (currentBgMusic) currentBgMusic->stop();
+                        musicLose.play();
+
                         combosum += comboTempMax;
                         xpsum = points + (2 * combosum);
                         score = (points * 100) + (10 * combosum);
@@ -1165,7 +1231,7 @@ int main() {
             {
                 comboTempMax = combo;
                 ComboText.setString("COMBO x" + std::to_string(combo));
-                ComboText.setPosition(sf::Vector2f(szerokosc - 200.f, wysokosc/2-100.f));
+                ComboText.setPosition(sf::Vector2f(szerokosc - 200.f, wysokosc / 2 - 100.f));
                 window.draw(ComboText);
             }
         }
