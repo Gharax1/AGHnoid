@@ -293,35 +293,51 @@ int main() {
 
     // --- PRZYCISKI OPCJI ---
 
-    sf::RectangleShape btnMusic(sf::Vector2f(250.f, 60.f));
+    sf::Texture texBtnMute;
+    if (!texBtnMute.loadFromFile("Sprites/btn_mute.png")) { return -1; }
+    texBtnMute.setSmooth(true);
+
+    sf::Texture texBtnLow;
+    if (!texBtnLow.loadFromFile("Sprites/btn_low.png")) { return -1; }
+    texBtnLow.setSmooth(true);
+
+    sf::Texture texBtnMedium;
+    if (!texBtnMedium.loadFromFile("Sprites/btn_medium.png")) { return -1; }
+    texBtnMedium.setSmooth(true);
+
+    sf::Texture texBtnLoud;
+    if (!texBtnLoud.loadFromFile("Sprites/btn_loud.png")) { return -1; }
+    texBtnLoud.setSmooth(true);
+
+    sf::RectangleShape btnMusic(sf::Vector2f(100.f, 60.f));
     //btnExit.setTexture(&texBtnOptions);
     btnMusic.setFillColor(sf::Color::White);
-    btnMusic.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnMusic.setPosition(sf::Vector2f(125.0f, wysokosc / 2.f));
+    btnMusic.setOrigin(sf::Vector2f(50.f, 30.f));
+    btnMusic.setPosition(sf::Vector2f(50.f, wysokosc / 2.f));
 
-    sf::RectangleShape btnTurnedOff(sf::Vector2f(50.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
-    btnTurnedOff.setFillColor(sf::Color::Red);
-    btnTurnedOff.setOrigin(sf::Vector2f(25.f, 30.f));
-    btnTurnedOff.setPosition(sf::Vector2f(szerokosc / 2.0f - 60.0f, wysokosc / 2.f));
+    sf::RectangleShape btnTurnedOff(sf::Vector2f(60.f, 60.f));
+    btnTurnedOff.setTexture(&texBtnMute);
+    btnTurnedOff.setFillColor(sf::Color::White);
+    btnTurnedOff.setOrigin(sf::Vector2f(30.f, 30.f));
+    btnTurnedOff.setPosition(sf::Vector2f(szerokosc / 2.0f - 130.0f, wysokosc / 2.f));
 
-    sf::RectangleShape btnQuiet(sf::Vector2f(50.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
-    btnQuiet.setFillColor(sf::Color::Green);
-    btnQuiet.setOrigin(sf::Vector2f(25.f, 30.f));
-    btnQuiet.setPosition(sf::Vector2f(szerokosc/2.0f, wysokosc / 2.f));
+    sf::RectangleShape btnQuiet(sf::Vector2f(60.f, 60.f));
+    btnQuiet.setTexture(&texBtnLow);
+    btnQuiet.setFillColor(sf::Color::White);
+    btnQuiet.setOrigin(sf::Vector2f(30.f, 30.f));
+    btnQuiet.setPosition(sf::Vector2f(szerokosc/2.0f - 45.0f , wysokosc / 2.f));
 
-    sf::RectangleShape btnMedium(sf::Vector2f(50.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
-    btnMedium.setFillColor(sf::Color::Blue);
-    btnMedium.setOrigin(sf::Vector2f(25.f, 30.f));
-    btnMedium.setPosition(sf::Vector2f(szerokosc / 2.0f + 60.0f, wysokosc / 2.f));
+    sf::RectangleShape btnMedium(sf::Vector2f(60.f, 60.f));
+    btnMedium.setTexture(&texBtnMedium);
+    btnMedium.setFillColor(sf::Color::White);
+    btnMedium.setOrigin(sf::Vector2f(30.f, 30.f));
+    btnMedium.setPosition(sf::Vector2f(szerokosc / 2.0f + 45.0f, wysokosc / 2.f));
 
-    sf::RectangleShape btnLoud(sf::Vector2f(50.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
-    btnLoud.setFillColor(sf::Color::Yellow);
-    btnLoud.setOrigin(sf::Vector2f(25.f, 30.f));
-    btnLoud.setPosition(sf::Vector2f(szerokosc / 2.0f + 120.0f, wysokosc / 2.f));
+    sf::RectangleShape btnLoud(sf::Vector2f(60.f, 60.f));
+    btnLoud.setTexture(&texBtnLoud);
+    btnLoud.setFillColor(sf::Color::White);
+    btnLoud.setOrigin(sf::Vector2f(30.f, 30.f));
+    btnLoud.setPosition(sf::Vector2f(szerokosc / 2.0f + 130.0f, wysokosc / 2.f));
 
     sf::RectangleShape btnBack(sf::Vector2f(250.f, 60.f));
     btnBack.setTexture(&texBtnExit);
