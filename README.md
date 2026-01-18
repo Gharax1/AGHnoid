@@ -1,6 +1,6 @@
---Polski--\
-Wersja Visual Studio - 2022\
-Wersja SFML - 3.0.2 x64\
+--Polski-- \
+Wersja Visual Studio - 2022 \
+Wersja SFML - 3.0.2 x64 \
 
 Przed uruchomieniem należy we właściwościach projektu w Visual Studio dla platformy x64:
 -Dla All Configurations - C/C++ - Additional Include Directories - dodać ścieżkę do folderu include projektu
