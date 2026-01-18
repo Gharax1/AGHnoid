@@ -11,6 +11,10 @@
 enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE, OPCJE };
 
 
+// Wybrany poziom muzyki
+
+int music = 2;
+
 // Licznik punktów
 int points = 0;
 int wybranyPoziom = 1;
@@ -309,35 +313,51 @@ int main() {
     if (!texBtnLoud.loadFromFile("Sprites/btn_loud.png")) { return -1; }
     texBtnLoud.setSmooth(true);
 
-    sf::RectangleShape btnMusic(sf::Vector2f(100.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
+    sf::Texture texBtnAD;
+    if (!texBtnAD.loadFromFile("Sprites/btn_ad.png")) { return -1; }
+    texBtnAD.setSmooth(true);
+
+    sf::Texture texBtnARR;
+    if (!texBtnARR.loadFromFile("Sprites/btn_arr.png")) { return -1; }
+    texBtnARR.setSmooth(true);
+
+    sf::Texture texBtnMusic;
+    if (!texBtnMusic.loadFromFile("Sprites/btn_music.png")) { return -1; }
+    texBtnMusic.setSmooth(true);
+
+    sf::Texture texBtnCtrl;
+    if (!texBtnCtrl.loadFromFile("Sprites/btn_ctrl.png")) { return -1; }
+    texBtnCtrl.setSmooth(true);
+
+    sf::RectangleShape btnMusic(sf::Vector2f(250.f, 60.f));
+    btnMusic.setTexture(&texBtnMusic);
     btnMusic.setFillColor(sf::Color::White);
-    btnMusic.setOrigin(sf::Vector2f(50.f, 30.f));
-    btnMusic.setPosition(sf::Vector2f(50.f, wysokosc / 2.f));
+    btnMusic.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnMusic.setPosition(sf::Vector2f(125.f, wysokosc / 2.f));
 
     sf::RectangleShape btnTurnedOff(sf::Vector2f(60.f, 60.f));
     btnTurnedOff.setTexture(&texBtnMute);
     btnTurnedOff.setFillColor(sf::Color::White);
     btnTurnedOff.setOrigin(sf::Vector2f(30.f, 30.f));
-    btnTurnedOff.setPosition(sf::Vector2f(szerokosc / 2.0f - 130.0f, wysokosc / 2.f));
+    btnTurnedOff.setPosition(sf::Vector2f(szerokosc / 2.0f - 112.5f, wysokosc / 2.f));
 
     sf::RectangleShape btnQuiet(sf::Vector2f(60.f, 60.f));
     btnQuiet.setTexture(&texBtnLow);
     btnQuiet.setFillColor(sf::Color::White);
     btnQuiet.setOrigin(sf::Vector2f(30.f, 30.f));
-    btnQuiet.setPosition(sf::Vector2f(szerokosc/2.0f - 45.0f , wysokosc / 2.f));
+    btnQuiet.setPosition(sf::Vector2f(szerokosc/2.0f - 37.5f , wysokosc / 2.f));
 
     sf::RectangleShape btnMedium(sf::Vector2f(60.f, 60.f));
     btnMedium.setTexture(&texBtnMedium);
     btnMedium.setFillColor(sf::Color::White);
     btnMedium.setOrigin(sf::Vector2f(30.f, 30.f));
-    btnMedium.setPosition(sf::Vector2f(szerokosc / 2.0f + 45.0f, wysokosc / 2.f));
+    btnMedium.setPosition(sf::Vector2f(szerokosc / 2.0f + 37.5f, wysokosc / 2.f));
 
     sf::RectangleShape btnLoud(sf::Vector2f(60.f, 60.f));
     btnLoud.setTexture(&texBtnLoud);
     btnLoud.setFillColor(sf::Color::White);
     btnLoud.setOrigin(sf::Vector2f(30.f, 30.f));
-    btnLoud.setPosition(sf::Vector2f(szerokosc / 2.0f + 130.0f, wysokosc / 2.f));
+    btnLoud.setPosition(sf::Vector2f(szerokosc / 2.0f + 112.5f, wysokosc / 2.f));
 
     sf::RectangleShape btnBack(sf::Vector2f(250.f, 60.f));
     btnBack.setTexture(&texBtnExit);
@@ -346,22 +366,22 @@ int main() {
     btnBack.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 130.f));
 
     sf::RectangleShape btnControls(sf::Vector2f(250.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
+    btnControls.setTexture(&texBtnCtrl);
     btnControls.setFillColor(sf::Color::White);
     btnControls.setOrigin(sf::Vector2f(125.f, 30.f));
     btnControls.setPosition(sf::Vector2f(125.0f, wysokosc / 2.f - 70.0f));
 
-    sf::RectangleShape btnWSAD(sf::Vector2f(250.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
-    btnWSAD.setFillColor(sf::Color::Red);
-    btnWSAD.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnWSAD.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 70.0f));
+    sf::RectangleShape btnWSAD(sf::Vector2f(100.f, 60.f));
+    btnWSAD.setTexture(&texBtnAD);
+    btnWSAD.setFillColor(sf::Color::White);
+    btnWSAD.setOrigin(sf::Vector2f(50.f, 30.f));
+    btnWSAD.setPosition(sf::Vector2f(szerokosc / 2.f - 60.0f, wysokosc / 2.f - 70.0f));
 
-    sf::RectangleShape btnArrows(sf::Vector2f(250.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
-    btnArrows.setFillColor(sf::Color::Blue);
-    btnArrows.setOrigin(sf::Vector2f(125.f, 30.f));
-    btnArrows.setPosition(sf::Vector2f(szerokosc / 2.f + 70.0f, wysokosc / 2.f - 70.0f));
+    sf::RectangleShape btnArrows(sf::Vector2f(100.f, 60.f));
+    btnArrows.setTexture(&texBtnARR);
+    btnArrows.setFillColor(sf::Color::White);
+    btnArrows.setOrigin(sf::Vector2f(50.f, 30.f));
+    btnArrows.setPosition(sf::Vector2f(szerokosc / 2.f + 60.0f, wysokosc / 2.f - 70.0f));
     
     // --- ELEMENTY WYBORU POZIOMU ---
 
@@ -878,6 +898,54 @@ int main() {
             else {
                 btnBack.setFillColor(sf::Color::White);
                 btnBack.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnTurnedOff.getGlobalBounds().contains(mousePos)) {
+                btnTurnedOff.setFillColor(sf::Color(220, 220, 220));
+                btnTurnedOff.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnTurnedOff.setFillColor(sf::Color::White);
+                btnTurnedOff.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnQuiet.getGlobalBounds().contains(mousePos)) {
+                btnQuiet.setFillColor(sf::Color(220, 220, 220));
+                btnQuiet.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnQuiet.setFillColor(sf::Color::White);
+                btnQuiet.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnMedium.getGlobalBounds().contains(mousePos)) {
+                btnMedium.setFillColor(sf::Color(220, 220, 220));
+                btnMedium.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnMedium.setFillColor(sf::Color::White);
+                btnMedium.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnLoud.getGlobalBounds().contains(mousePos)) {
+                btnLoud.setFillColor(sf::Color(220, 220, 220));
+                btnLoud.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnLoud.setFillColor(sf::Color::White);
+                btnLoud.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnWSAD.getGlobalBounds().contains(mousePos)) {
+                btnWSAD.setFillColor(sf::Color(220, 220, 220));
+                btnWSAD.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnWSAD.setFillColor(sf::Color::White);
+                btnWSAD.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+            if (btnArrows.getGlobalBounds().contains(mousePos)) {
+                btnArrows.setFillColor(sf::Color(220, 220, 220));
+                btnArrows.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnArrows.setFillColor(sf::Color::White);
+                btnArrows.setScale(sf::Vector2f(1.0f, 1.0f));
             }
         }
 
