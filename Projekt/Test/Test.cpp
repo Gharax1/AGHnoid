@@ -12,7 +12,7 @@ enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE, OPCJE };
 
 // Wybrany poziom muzyki
 int music = 2;
-int controls = 1;
+int controls = 0;
 
 // Zmienne do przechowywania aktualnej głośności (aby stosować je do nowych utworów)
 float currentMenuVol = 30.f;
@@ -161,7 +161,7 @@ int main() {
     levelText.setCharacterSize(32.f);
     levelText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     levelText.setOutlineColor(sf::Color::Black);
-    levelText.setOutlineThickness(3.f);
+    levelText.setOutlineThickness(5.f);
     levelText.setPosition(sf::Vector2f(10.f, wysokosc - 100.f));
 
     sf::Text HighscoreText(PixelFont);
@@ -169,8 +169,8 @@ int main() {
     HighscoreText.setCharacterSize(32.f);
     HighscoreText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     HighscoreText.setOutlineColor(sf::Color::Black);
-    HighscoreText.setOutlineThickness(3.f);
-    HighscoreText.setPosition(sf::Vector2f(szerokosc - 250.f, wysokosc - 50.f));
+    HighscoreText.setOutlineThickness(5.f);
+    HighscoreText.setPosition(sf::Vector2f(10.f, 10.f));
 
     // ---- GAME OVER -------
 
@@ -567,6 +567,14 @@ int main() {
     sf::Texture blokTexture;
     if (blokTexture.loadFromFile("Sprites/bloczki_4.png")) {}
 
+    sf::Texture Blok1hp;
+    if (Blok1hp.loadFromFile("Sprites/bloczki_4_1hp.png")) {}
+
+    sf::Texture Blok2hp;
+    if (Blok2hp.loadFromFile("Sprites/bloczki_4_2hp.png")) {}
+
+    sf::Texture Blok3hp;
+    if (Blok3hp.loadFromFile("Sprites/bloczki_4_3hp.png")) {}
 
     // Power upy
     struct Power {
@@ -602,11 +610,16 @@ int main() {
             for (int kol = 0; kol < 10; ++kol) {
                 Bloczki b;
                 b.shape.setSize(sf::Vector2f(70.f, 25.f));
-                b.shape.setTexture(&blokTexture);
+                //b.shape.setTexture(&blokTexture);
                 if (lvl == 1) b.health_points = 1;
                 if ((lvl == 2) && (rzad % 2 == 0)) b.health_points = 2;
                 if ((lvl == 3) && (rzad % 3 == 0)) b.health_points = 2;
                 if ((lvl == 3) && (rzad % 5 == 0)) b.health_points = 3;
+
+                if (b.health_points == 1) b.shape.setTexture(&Blok1hp);
+                else if (b.health_points == 2) b.shape.setTexture(&Blok2hp);
+                else if (b.health_points == 3) b.shape.setTexture(&Blok3hp);
+
                 switch (rzad % 3) {
                 case 0: b.shape.setFillColor(sf::Color(0x00, 0x6b, 0x3b)); break;
                 case 1: b.shape.setFillColor(sf::Color(0x23, 0x1f, 0x20)); break;
@@ -1118,6 +1131,8 @@ int main() {
                     if (!b.zniszczony && kulka.getGlobalBounds().findIntersection(b.shape.getGlobalBounds())) {
                         combo++;
                         b.health_points--;
+                        if (b.health_points == 1) b.shape.setTexture(&Blok1hp);
+                        else if (b.health_points == 2) b.shape.setTexture(&Blok2hp);
                         hitSound.play();
                         if (rand() % 100 < 40) {
                             b.moving = true;
