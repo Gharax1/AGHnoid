@@ -261,10 +261,14 @@ int main() {
     sf::Texture texBtnRestart;
     if (!texBtnRestart.loadFromFile("Sprites/btn_restart.png")) { return -1; }
 
+    sf::Texture texBtnOptions;
+    if (!texBtnOptions.loadFromFile("Sprites/btn_options.png")) { return -1; }
+
     texBtnPlay.setSmooth(true);
     texBtnExit.setSmooth(true);
     texBtnResume.setSmooth(true);
     texBtnRestart.setSmooth(true);
+    texBtnOptions.setSmooth(true);
 
 
     // --- PRZYCISKI MENU GŁÓWNEGO ---
@@ -281,10 +285,10 @@ int main() {
     btnExit.setOrigin(sf::Vector2f(125.f, 30.f));
     btnExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
 
-    sf::RectangleShape btnOptions(sf::Vector2f(250.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
+    sf::RectangleShape btnOptions(sf::Vector2f(220.f, 60.f));
+    btnOptions.setTexture(&texBtnOptions);
     btnOptions.setFillColor(sf::Color::White);
-    btnOptions.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnOptions.setOrigin(sf::Vector2f(110.f, 30.f));
     btnOptions.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 130.f));
 
     // --- PRZYCISKI OPCJI ---
@@ -320,7 +324,7 @@ int main() {
     btnLoud.setPosition(sf::Vector2f(szerokosc / 2.0f + 120.0f, wysokosc / 2.f));
 
     sf::RectangleShape btnBack(sf::Vector2f(250.f, 60.f));
-    //btnExit.setTexture(&texBtnOptions);
+    btnBack.setTexture(&texBtnExit);
     btnBack.setFillColor(sf::Color::White);
     btnBack.setOrigin(sf::Vector2f(125.f, 30.f));
     btnBack.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 130.f));
@@ -345,45 +349,57 @@ int main() {
     
     // --- ELEMENTY WYBORU POZIOMU ---
 
-    sf::RectangleShape btnLvl1(sf::Vector2f(300.f, 60.f));
-    btnLvl1.setTexture(&texBtnPlay);
+    sf::Texture texBtnLvl1;
+    if (!texBtnLvl1.loadFromFile("Sprites/btn_lvl1.png")) { return -1; }
+    texBtnLvl1.setSmooth(true);
+
+    sf::Texture texBtnLvl2;
+    if (!texBtnLvl2.loadFromFile("Sprites/btn_lvl2.png")) { return -1; }
+    texBtnLvl2.setSmooth(true);
+
+    sf::Texture texBtnLvl3;
+    if (!texBtnLvl3.loadFromFile("Sprites/btn_lvl3.png")) { return -1; }
+    texBtnLvl3.setSmooth(true);
+
+    sf::RectangleShape btnLvl1(sf::Vector2f(250.f, 60.f));
+    btnLvl1.setTexture(&texBtnLvl1);
     btnLvl1.setFillColor(sf::Color::White);
-    btnLvl1.setOrigin(sf::Vector2f(150.f, 30.f));
+    btnLvl1.setOrigin(sf::Vector2f(125.f, 30.f));
     btnLvl1.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 120.f)); 
 
-    sf::Text textLvl1(font); 
+    /*sf::Text textLvl1(font);
     textLvl1.setString("POZIOM 1");
     textLvl1.setCharacterSize(30);
     textLvl1.setFillColor(sf::Color::Black);
     textLvl1.setOrigin(sf::Vector2f(textLvl1.getGlobalBounds().size.x / 2.f, textLvl1.getGlobalBounds().size.y / 2.f));
-    textLvl1.setPosition(btnLvl1.getPosition());
+    textLvl1.setPosition(btnLvl1.getPosition()); */
 
 
-    sf::RectangleShape btnLvl2(sf::Vector2f(300.f, 60.f));
-    btnLvl2.setTexture(&texBtnPlay);
+    sf::RectangleShape btnLvl2(sf::Vector2f(250.f, 60.f));
+    btnLvl2.setTexture(&texBtnLvl2);
     btnLvl2.setFillColor(sf::Color::White);
-    btnLvl2.setOrigin(sf::Vector2f(150.f, 30.f));
+    btnLvl2.setOrigin(sf::Vector2f(125.f, 30.f));
     btnLvl2.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 40.f)); 
 
-    sf::Text textLvl2(font);
+    /*sf::Text textLvl2(font);
     textLvl2.setString("POZIOM 2");
     textLvl2.setCharacterSize(30);
     textLvl2.setFillColor(sf::Color::Black);
     textLvl2.setOrigin(sf::Vector2f(textLvl2.getGlobalBounds().size.x / 2.f, textLvl2.getGlobalBounds().size.y / 2.f));
-    textLvl2.setPosition(btnLvl2.getPosition());
+    textLvl2.setPosition(btnLvl2.getPosition()); */
 
-    sf::RectangleShape btnLvl3(sf::Vector2f(300.f, 60.f));
-    btnLvl3.setTexture(&texBtnPlay);
+    sf::RectangleShape btnLvl3(sf::Vector2f(250.f, 60.f));
+    btnLvl3.setTexture(&texBtnLvl3);
     btnLvl3.setFillColor(sf::Color::White);
-    btnLvl3.setOrigin(sf::Vector2f(150.f, 30.f));
+    btnLvl3.setOrigin(sf::Vector2f(125.f, 30.f));
     btnLvl3.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 40.f));
 
-    sf::Text textLvl3(font); 
+    /*sf::Text textLvl3(font);
     textLvl3.setString("POZIOM 3");
     textLvl3.setCharacterSize(30);
     textLvl3.setFillColor(sf::Color::Black);
     textLvl3.setOrigin(sf::Vector2f(textLvl3.getGlobalBounds().size.x / 2.f, textLvl3.getGlobalBounds().size.y / 2.f));
-    textLvl3.setPosition(btnLvl3.getPosition());
+    textLvl3.setPosition(btnLvl3.getPosition());*/
 
 
     sf::RectangleShape btnLvlBack(sf::Vector2f(250.f, 60.f));
@@ -735,6 +751,14 @@ int main() {
                 btnExit.setFillColor(sf::Color::White);
                 btnExit.setScale(sf::Vector2f(1.0f, 1.0f));
             }
+            if (btnOptions.getGlobalBounds().contains(mousePos)) {
+                btnOptions.setFillColor(sf::Color(220, 220, 220));
+                btnOptions.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnOptions.setFillColor(sf::Color::White);
+                btnOptions.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
         }
 
 
@@ -828,6 +852,16 @@ int main() {
             else {
                 btnGameOverRestart.setFillColor(sf::Color::White);
                 btnGameOverRestart.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+        }
+        if (aktualnyStan == Stan::OPCJE) {
+            if (btnBack.getGlobalBounds().contains(mousePos)) {
+                btnBack.setFillColor(sf::Color(220, 220, 220));
+                btnBack.setScale(sf::Vector2f(1.05f, 1.05f));
+            }
+            else {
+                btnBack.setFillColor(sf::Color::White);
+                btnBack.setScale(sf::Vector2f(1.0f, 1.0f));
             }
         }
 
@@ -1001,11 +1035,11 @@ int main() {
         }
         else if (aktualnyStan == Stan::LEVEL) {
             window.draw(btnLvl1);
-            window.draw(textLvl1);
+            //window.draw(textLvl1);
             window.draw(btnLvl2);
-            window.draw(textLvl2);
+            //window.draw(textLvl2);
             window.draw(btnLvl3);
-            window.draw(textLvl3);
+            //window.draw(textLvl3);
             window.draw(btnLvlBack);
         }
         else if (aktualnyStan == Stan::GRA) {
