@@ -12,7 +12,7 @@ enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE, OPCJE };
 
 // Wybrany poziom muzyki
 int music = 2;
-int controls = 0;
+int controls = 1;
 
 // Zmienne do przechowywania aktualnej głośności (aby stosować je do nowych utworów)
 float currentMenuVol = 30.f;
@@ -161,7 +161,7 @@ int main() {
     levelText.setCharacterSize(32.f);
     levelText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     levelText.setOutlineColor(sf::Color::Black);
-    levelText.setOutlineThickness(5.f);
+    levelText.setOutlineThickness(3.f);
     levelText.setPosition(sf::Vector2f(10.f, wysokosc - 100.f));
 
     sf::Text HighscoreText(PixelFont);
@@ -169,8 +169,8 @@ int main() {
     HighscoreText.setCharacterSize(32.f);
     HighscoreText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     HighscoreText.setOutlineColor(sf::Color::Black);
-    HighscoreText.setOutlineThickness(5.f);
-    HighscoreText.setPosition(sf::Vector2f(10.f, 10.f));
+    HighscoreText.setOutlineThickness(3.f);
+    HighscoreText.setPosition(sf::Vector2f(szerokosc - 250.f, wysokosc - 50.f));
 
     // ---- GAME OVER -------
 
