@@ -8,7 +8,7 @@
 #include <iostream>
 
 // Definiujemy możliwe stany gry
-enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE };
+enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE, OPCJE };
 
 
 // Licznik punktów
@@ -16,6 +16,10 @@ int points = 0;
 int wybranyPoziom = 1;
 
 int combo=0;
+
+//Controls
+sf::Keyboard::Key left = sf::Keyboard::Key::Left;
+sf::Keyboard::Key right = sf::Keyboard::Key::Right;
 
 // LEVEL UP SYSTEM
 
@@ -277,7 +281,68 @@ int main() {
     btnExit.setOrigin(sf::Vector2f(125.f, 30.f));
     btnExit.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
 
+    sf::RectangleShape btnOptions(sf::Vector2f(250.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnOptions.setFillColor(sf::Color::White);
+    btnOptions.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnOptions.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 130.f));
 
+    // --- PRZYCISKI OPCJI ---
+
+    sf::RectangleShape btnMusic(sf::Vector2f(250.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnMusic.setFillColor(sf::Color::White);
+    btnMusic.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnMusic.setPosition(sf::Vector2f(125.0f, wysokosc / 2.f));
+
+    sf::RectangleShape btnTurnedOff(sf::Vector2f(50.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnTurnedOff.setFillColor(sf::Color::Red);
+    btnTurnedOff.setOrigin(sf::Vector2f(25.f, 30.f));
+    btnTurnedOff.setPosition(sf::Vector2f(szerokosc / 2.0f - 60.0f, wysokosc / 2.f));
+
+    sf::RectangleShape btnQuiet(sf::Vector2f(50.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnQuiet.setFillColor(sf::Color::Green);
+    btnQuiet.setOrigin(sf::Vector2f(25.f, 30.f));
+    btnQuiet.setPosition(sf::Vector2f(szerokosc/2.0f, wysokosc / 2.f));
+
+    sf::RectangleShape btnMedium(sf::Vector2f(50.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnMedium.setFillColor(sf::Color::Blue);
+    btnMedium.setOrigin(sf::Vector2f(25.f, 30.f));
+    btnMedium.setPosition(sf::Vector2f(szerokosc / 2.0f + 60.0f, wysokosc / 2.f));
+
+    sf::RectangleShape btnLoud(sf::Vector2f(50.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnLoud.setFillColor(sf::Color::Yellow);
+    btnLoud.setOrigin(sf::Vector2f(25.f, 30.f));
+    btnLoud.setPosition(sf::Vector2f(szerokosc / 2.0f + 120.0f, wysokosc / 2.f));
+
+    sf::RectangleShape btnBack(sf::Vector2f(250.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnBack.setFillColor(sf::Color::White);
+    btnBack.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnBack.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 130.f));
+
+    sf::RectangleShape btnControls(sf::Vector2f(250.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnControls.setFillColor(sf::Color::White);
+    btnControls.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnControls.setPosition(sf::Vector2f(125.0f, wysokosc / 2.f - 70.0f));
+
+    sf::RectangleShape btnWSAD(sf::Vector2f(250.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnWSAD.setFillColor(sf::Color::Red);
+    btnWSAD.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnWSAD.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f - 70.0f));
+
+    sf::RectangleShape btnArrows(sf::Vector2f(250.f, 60.f));
+    //btnExit.setTexture(&texBtnOptions);
+    btnArrows.setFillColor(sf::Color::Blue);
+    btnArrows.setOrigin(sf::Vector2f(125.f, 30.f));
+    btnArrows.setPosition(sf::Vector2f(szerokosc / 2.f + 70.0f, wysokosc / 2.f - 70.0f));
+    
     // --- ELEMENTY WYBORU POZIOMU ---
 
     sf::RectangleShape btnLvl1(sf::Vector2f(300.f, 60.f));
@@ -486,10 +551,13 @@ int main() {
     std::random_device rd;
     std::mt19937 gen(rd());
 
+    
+
 
     // --- PĘTLA GŁÓWNA ---
     while (window.isOpen()) {
         srand(time(NULL));
+
 
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
@@ -532,6 +600,43 @@ int main() {
                         if (btnExit.getGlobalBounds().contains(mousePos)) {
                             window.close();
                             saveGame(player);
+                        }
+                        if (btnOptions.getGlobalBounds().contains(mousePos)) {
+                            aktualnyStan = Stan::OPCJE;
+                        }
+                    }
+                }
+            }
+            else if (aktualnyStan == Stan::OPCJE) {
+                if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+                    if (mouseEvent->button == sf::Mouse::Button::Left) {
+                        if (btnBack.getGlobalBounds().contains(mousePos)) {
+                            aktualnyStan = Stan::MENU;
+                        }
+                        if (btnTurnedOff.getGlobalBounds().contains(mousePos)) {
+                            menuMusic.setVolume(0.0f);
+                            gameMusic.setVolume(0.0f);
+                        }
+                        if (btnQuiet.getGlobalBounds().contains(mousePos)) {
+                            menuMusic.setVolume(15.0f);
+                            gameMusic.setVolume(5.0f);
+                        }
+                        if (btnMedium.getGlobalBounds().contains(mousePos)) {
+                            menuMusic.setVolume(30.0f);
+                            gameMusic.setVolume(10.0f);
+                        }
+                        if (btnLoud.getGlobalBounds().contains(mousePos)) {
+                            menuMusic.setVolume(45.0f);
+                            gameMusic.setVolume(15.0f);
+                        }
+                        if (btnWSAD.getGlobalBounds().contains(mousePos)) {
+                            left = sf::Keyboard::Key::A;
+                            right = sf::Keyboard::Key::D;
+                            
+                        }
+                        if (btnArrows.getGlobalBounds().contains(mousePos)) {
+                            sf::Keyboard::Key left = sf::Keyboard::Key::Left;
+                            sf::Keyboard::Key right = sf::Keyboard::Key::Right;
                         }
                     }
                 }
@@ -730,8 +835,8 @@ int main() {
         // --- LOGIKA GRY ---
         if (aktualnyStan == Stan::GRA) {
             float ruchX = 0.f;
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) ruchX = -8.f;
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) ruchX = 8.f;
+            if (sf::Keyboard::isKeyPressed(left)) ruchX = -8.f;
+            if (sf::Keyboard::isKeyPressed(right)) ruchX = 8.f;
 
             paletka.move(sf::Vector2f(ruchX, 0.f));
 
@@ -875,12 +980,24 @@ int main() {
             window.draw(titleSprite);
             window.draw(btnPlay);
             window.draw(btnExit);
+            window.draw(btnOptions);
             window.draw(xpBarBg2);
             window.draw(xpBarBg1);
             window.draw(xpBarBg);
             window.draw(xpBarFill);
             window.draw(levelText);
             window.draw(HighscoreText);
+        }
+        else if (aktualnyStan == Stan::OPCJE) {
+            window.draw(btnMusic);
+            window.draw(btnTurnedOff);
+            window.draw(btnQuiet);
+            window.draw(btnMedium);
+            window.draw(btnLoud);
+            window.draw(btnBack);
+            window.draw(btnControls);
+            window.draw(btnWSAD);
+            window.draw(btnArrows);
         }
         else if (aktualnyStan == Stan::LEVEL) {
             window.draw(btnLvl1);
