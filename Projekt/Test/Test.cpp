@@ -422,6 +422,7 @@ int main() {
         sf::RectangleShape shape;
         bool zniszczony = false;
         int health_points;
+        bool moving = false;
     };
     std::vector<Bloczki> bloczki;
 
@@ -800,6 +801,9 @@ int main() {
                         combo++;
                         b.health_points--;
                         hitSound.play();
+                        if (rand() % 100 < 40) {
+                            b.moving = true;
+                        }
                         if (b.health_points == 0) {
                             points++;
                             b.zniszczony = true;
@@ -822,6 +826,24 @@ int main() {
                         }
                         predkosc.y = -predkosc.y;
                         break;
+                    }
+                    if (b.moving == true) {
+                        b.shape.move({ 0.0f, 0.25f });
+                    }
+                    if (!b.zniszczony && b.shape.getGlobalBounds().findIntersection(paletka.getGlobalBounds())) {
+                        aktualnyStan = Stan::LOSE;
+                        gameMusic.stop();
+                        combosum += comboTempMax;
+                        xpsum = points + (2 * combosum);
+                        score = (points * 100) + (10 * combosum);
+                        addXP(player, xpsum);
+                        if (score > player.highScore) player.highScore = score;
+                        saveGame(player);
+                    }
+                    if (!b.zniszczony && b.shape.getPosition().y >= paletka.getPosition().y) {
+                        b.health_points = 0;
+                        b.zniszczony = true;
+                        points++;
                     }
                 }
                 for (auto& pow : power) {
