@@ -1,1 +1,3 @@
-Do działania programu wystarczy pobrać sam plik AGHnoid z folderu głównego. Plik AGHnoid.exe znajduje się w folderze AGHnoid. Nie potrzebne są żadne dodatkowe instalacje.
+1. Pobierz AGHnoid.rar
+2. Wypakuj do dowolnej lokalizacji
+3. W folderze AGHnoid znajduje się AGHnoid.exe
