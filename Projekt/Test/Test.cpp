@@ -12,7 +12,7 @@ enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE, OPCJE };
 
 // Wybrany poziom muzyki
 int music = 2;
-int controls = 0;
+int controls = 1;
 
 // Zmienne do przechowywania aktualnej głośności (aby stosować je do nowych utworów)
 float currentMenuVol = 30.f;
@@ -87,7 +87,7 @@ int main() {
 
     Player player;
     loadGame(player);
-    sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "Arkanoid z Menu - SFML 3");
+    sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "AGHnoid");
     window.setFramerateLimit(60);
 
     Stan aktualnyStan = Stan::MENU;
@@ -170,7 +170,7 @@ int main() {
     HighscoreText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     HighscoreText.setOutlineColor(sf::Color::Black);
     HighscoreText.setOutlineThickness(5.f);
-    HighscoreText.setPosition(sf::Vector2f(10.f, 10.f));
+    HighscoreText.setPosition(sf::Vector2f(szerokosc - 250.f, wysokosc - 50.f));
 
     // ---- GAME OVER -------
 
@@ -189,7 +189,7 @@ int main() {
 
     // ------- WIN ----------
     sf::Texture WinTexture;
-    if (!WinTexture.loadFromFile("Sprites/game_over.png")) {} // Możesz tu dodać oddzielną grafikę "You Win"
+    if (!WinTexture.loadFromFile("Sprites/win.png")) {}
     WinTexture.setSmooth(true);
 
     float WinTwidth = static_cast<float>(WinTexture.getSize().x) / 2.f;
@@ -1123,7 +1123,7 @@ int main() {
                     predkosc = { std::cos(rad) * moc, std::sin(rad) * moc };
 
                     // Poprawka pozycji, żeby kulka nie utknęła w paletce
-                    kulka.setPosition({ pos.x, paletka.getPosition().y - 15.f });
+                    kulka.setPosition({ pos.x, paletka.getPosition().y - 20.f });
                 }
 
 
