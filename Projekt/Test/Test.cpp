@@ -58,11 +58,24 @@ void levelUp(Player& p)
 
 void addXP(Player& p, int amount)
 {
+    // Jeśli xpToNext jest zepsute (<= 0), napraw je
+    if (p.xpToNext <= 0) {
+        p.xpToNext = 100;
+    }
+
     p.xp += amount;
+
+    // Pętla levelowania
     while (p.xp >= p.xpToNext)
     {
         p.xp -= p.xpToNext;
         levelUp(p);
+
+        // Na wypadek gdyby levelUp nie zwiększył progu (mało prawdopodobne, ale bezpieczne)
+        if (p.xpToNext <= 0) {
+            p.xpToNext = 100;
+            break;
+        }
     }
 }
 
