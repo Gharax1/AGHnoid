@@ -22,7 +22,7 @@ sfml-network-d.lib
 Visual Studio Version - 2022 \
 SFML Version - 3.0.2 x64
 
-Prior to running the program, user should in Visual Studio project properties for x64 platform: \
+Prior to running the program, user should, in Visual Studio project properties for x64 platform: \
 -For All Configurations - C/C++ - Additional Include Directories - add the path to the project's include directory \
 -For All Configurations - Linker - Additional Library Directories - add the path to the project's lib directory \
 -For Release - Input - Additional Dependecies - add: \
