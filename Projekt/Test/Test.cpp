@@ -211,7 +211,7 @@ int main() {
     HighscoreText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     HighscoreText.setOutlineColor(sf::Color::Black);
     HighscoreText.setOutlineThickness(5.f);
-    HighscoreText.setPosition(sf::Vector2f(szerokosc - 250.f, wysokosc - 50.f));
+    HighscoreText.setPosition(sf::Vector2f(szerokosc - 300.f, wysokosc - 50.f));
 
     // ---- GAME OVER -------
 
@@ -590,6 +590,12 @@ int main() {
     paletka.setFillColor(sf::Color::White);
     paletka.setOrigin(sf::Vector2f(paletkaRozmiar.x / 2.f, (paletkaRozmiar.y / 2.f) + 0.5f));
 
+    float basePaddleWidth = 120.0f;  
+    float predkoscPaletki = 8.0f;
+
+    sf::Clock powerUpTimer;             
+    bool powerUpActive = false;
+
 
     sf::Vector2f predkosc(0.f, 0.f);
     bool czyW_Ruchu = false;
@@ -627,14 +633,41 @@ int main() {
 
 
     auto resetGry = [&](int lvl) {
-        moc = 6.0f;
+
+        float bazowaPredkoscPilki = 6.0f;
+        float bazowaPredkoscPaletki = 8.0f;
+
+        if (lvl == 1) {
+            moc = bazowaPredkoscPilki;
+            predkoscPaletki = bazowaPredkoscPaletki;        
+        }
+        else if (lvl == 2) {
+            moc = bazowaPredkoscPilki * 1.5f;
+            predkoscPaletki = bazowaPredkoscPaletki * 1.3f; 
+        }
+        else if (lvl == 3) {
+            moc = bazowaPredkoscPilki * 2.f;
+            predkoscPaletki = bazowaPredkoscPaletki * 1.5f; 
+        }
+        else {
+            moc = bazowaPredkoscPilki;
+            predkoscPaletki = bazowaPredkoscPaletki;
+        }
+
         points = 0;
         combo = 0;
         combosum = 0;
         comboTempMax = 0;
         score = 0;
+        powerUpActive = false;
+
         kulka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
         paletka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc - 40.f));
+
+        paletka.setSize(sf::Vector2f(basePaddleWidth, 15.f));
+        paletka.setOrigin(sf::Vector2f(basePaddleWidth / 2.f, (15.f / 2.f) + 0.5f));
+        paletka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc - 40.f));
+
         predkosc = sf::Vector2f(0.f, 0.f);
         czyW_Ruchu = false;
 
@@ -1097,16 +1130,29 @@ int main() {
 
         // --- LOGIKA GRY ---
         if (aktualnyStan == Stan::GRA) {
+            // --- 1. SPRAWDZANIE CZASU TRWANIA POWER-UPA ---
+            if (powerUpActive) {
+                if (powerUpTimer.getElapsedTime().asSeconds() >= 10.0f) {
+                    powerUpActive = false;
+
+                    paletka.setSize(sf::Vector2f(basePaddleWidth, 15.f));
+                    paletka.setOrigin(sf::Vector2f(basePaddleWidth / 2.f, (15.f / 2.f) + 0.5f));
+                }
+            }
+
+            // --- 2. RUCH PALETKI ---
             float ruchX = 0.f;
-            if (sf::Keyboard::isKeyPressed(left)) ruchX = -8.f;
-            if (sf::Keyboard::isKeyPressed(right)) ruchX = 8.f;
+            if (sf::Keyboard::isKeyPressed(left)) ruchX = -predkoscPaletki;
+            if (sf::Keyboard::isKeyPressed(right)) ruchX = predkoscPaletki;
 
             paletka.move(sf::Vector2f(ruchX, 0.f));
 
-            if (paletka.getPosition().x - 60.f < 0.f)
-                paletka.setPosition(sf::Vector2f(60.f, paletka.getPosition().y));
-            else if (paletka.getPosition().x + 60.f > szerokosc)
-                paletka.setPosition(sf::Vector2f(szerokosc - 60.f, paletka.getPosition().y));
+            float polowka = paletka.getSize().x / 2.0f;
+
+            if (paletka.getPosition().x - polowka < 0.f)
+                paletka.setPosition(sf::Vector2f(polowka, paletka.getPosition().y));
+            else if (paletka.getPosition().x + polowka > szerokosc)
+                paletka.setPosition(sf::Vector2f(szerokosc - polowka, paletka.getPosition().y));
 
 
 
@@ -1179,29 +1225,37 @@ int main() {
                     if (!b.zniszczony && kulka.getGlobalBounds().findIntersection(b.shape.getGlobalBounds())) {
                         combo++;
                         b.health_points--;
+
                         if (b.health_points == 1) b.shape.setTexture(&Blok1hp);
                         else if (b.health_points == 2) b.shape.setTexture(&Blok2hp);
+
                         hitSound.play();
+
                         if (rand() % 100 < 40) {
                             b.moving = true;
                         }
+
                         if (b.health_points == 0) {
                             points++;
                             b.zniszczony = true;
-                            if (rand() % 2 == 0) {
+
+                            if (rand() % 100 < 10) {
                                 Power pow;
                                 pow.shape.setRadius(16.0f);
                                 pow.shape.setTexture(&powerUp);
-                                pow.shape.setFillColor(sf::Color::White);
                                 pow.shape.setOrigin(pow.shape.getGeometricCenter());
                                 pow.shape.setPosition(b.shape.getPosition());
                                 pow.moving = true;
+
                                 if (rand() % 2 == 0) {
-                                    pow.factor = moc * 0.15f;
+                                    pow.factor = 2.0f;
+                                    pow.shape.setFillColor(sf::Color::Green);
                                 }
-                                else if (moc >= 6.0f) { // kulka nie porusza sie wolniej niz poczatkowa predkosc
-                                    pow.factor = -moc * 0.15f;
+                                else {
+                                    pow.factor = 0.5f;
+                                    pow.shape.setFillColor(sf::Color::Red);
                                 }
+
                                 power.push_back(pow);
                             }
                         }
@@ -1238,8 +1292,21 @@ int main() {
                     if (!pow.used && paletka.getGlobalBounds().findIntersection(pow.shape.getGlobalBounds())) {
                         pow.used = true;
                         powerSound.play();
-                        moc += pow.factor;
-                        if (moc < 3.0f) moc = 5.0f;
+
+                        // reset zegara i boola
+                        powerUpTimer.restart();
+                        powerUpActive = true;
+
+                        // nowy rozmiar na podstawie zmiennej z poczatku (basePaddleWidth)
+                        // Niezależnie czy paletka była mała czy duża, liczymy od 120.f
+                        float nowaSzerokosc = basePaddleWidth * pow.factor;
+
+                        // nowy rozmiar
+                        paletka.setSize(sf::Vector2f(nowaSzerokosc, 15.f));
+
+                        // aktualizacja srodka zeby rozszerzycz paletke symetrycznie
+                        paletka.setOrigin(sf::Vector2f(nowaSzerokosc / 2.0f, (15.f / 2.f) + 0.5f));
+
                         break;
                     }
                 }
