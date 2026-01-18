@@ -633,6 +633,7 @@ int main() {
         combosum = 0;
         comboTempMax = 0;
         score = 0;
+        ScoreText.setString("Score: " + std::to_string(score));
         kulka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
         paletka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc - 40.f));
         predkosc = sf::Vector2f(0.f, 0.f);
@@ -1337,5 +1338,6 @@ int main() {
     }
     return 0;
 }
+
 
 
