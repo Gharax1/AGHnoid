@@ -41,7 +41,7 @@ int deszyfrowanie(int dane) {
 int comboTempMax = 0; // maksymalna wartosc jednego combo
 int combosum = 0; // suma wszystkich combo
 int xpsum = points + 2 * combosum; // 1 xp za zniszczenie bloku, 2 xp za kazdy punkt combo
-int score = 100 * points + (5 * level * combosum); // 100 punktow za kazdy zniszczony blok, 5 punktów za kazdy punkt combo zwiększone z kazdym poziomem
+int score = 0; // 100 punktow za kazdy zniszczony blok, 5 punktów za kazdy punkt combo zwiększone z kazdym poziomem
 
 struct Player {
     int level = 1;
@@ -1320,4 +1320,5 @@ int main() {
     }
     return 0;
 }
+
 
