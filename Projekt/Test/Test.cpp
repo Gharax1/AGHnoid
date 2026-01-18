@@ -124,6 +124,8 @@ int main() {
     const unsigned int szerokosc = 800;
     const unsigned int wysokosc = 600;
 
+    // srand(time(NULL));
+
     Player player;
     loadGame(player);
     sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "AGHnoid");
@@ -675,12 +677,14 @@ int main() {
     std::random_device rd;
     std::mt19937 gen(rd());
 
+    srand(time(NULL));
+
 
 
 
     // --- PĘTLA GŁÓWNA ---
     while (window.isOpen()) {
-        srand(time(NULL));
+        
 
 
         sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
