@@ -717,6 +717,9 @@ int main() {
                         if (btnOptions.getGlobalBounds().contains(mousePos)) {
                             aktualnyStan = Stan::OPCJE;
                         }
+                        if (levelText.getGlobalBounds().contains(mousePos)) {
+                            std::cout << "Well done, you discovered an easter egg." << std::endl << "You gain *drums* nothing at all, but congratulations nonetheless." << std::endl;
+                        }
                     }
                 }
             }
@@ -1311,3 +1314,4 @@ int main() {
     }
     return 0;
 }
+
