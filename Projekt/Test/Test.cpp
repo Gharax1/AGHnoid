@@ -14,6 +14,7 @@ enum class Stan { MENU, GRA, LEVEL, PAUSE, WIN, LOSE, OPCJE };
 // Wybrany poziom muzyki
 
 int music = 2;
+int controls = 0;
 
 // Licznik punktów
 int points = 0;
@@ -668,27 +669,33 @@ int main() {
                         if (btnTurnedOff.getGlobalBounds().contains(mousePos)) {
                             menuMusic.setVolume(0.0f);
                             gameMusic.setVolume(0.0f);
+                            music = 0;
                         }
                         if (btnQuiet.getGlobalBounds().contains(mousePos)) {
                             menuMusic.setVolume(15.0f);
                             gameMusic.setVolume(5.0f);
+                            music = 1;
                         }
                         if (btnMedium.getGlobalBounds().contains(mousePos)) {
                             menuMusic.setVolume(30.0f);
                             gameMusic.setVolume(10.0f);
+                            music = 2;
                         }
                         if (btnLoud.getGlobalBounds().contains(mousePos)) {
                             menuMusic.setVolume(45.0f);
                             gameMusic.setVolume(15.0f);
+                            music = 3;
                         }
                         if (btnWSAD.getGlobalBounds().contains(mousePos)) {
                             left = sf::Keyboard::Key::A;
                             right = sf::Keyboard::Key::D;
+                            controls = 0;
                             
                         }
                         if (btnArrows.getGlobalBounds().contains(mousePos)) {
                             sf::Keyboard::Key left = sf::Keyboard::Key::Left;
                             sf::Keyboard::Key right = sf::Keyboard::Key::Right;
+                            controls = 1;
                         }
                     }
                 }
@@ -899,7 +906,7 @@ int main() {
                 btnBack.setFillColor(sf::Color::White);
                 btnBack.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            if (btnTurnedOff.getGlobalBounds().contains(mousePos)) {
+            if (btnTurnedOff.getGlobalBounds().contains(mousePos) && music != 0) {
                 btnTurnedOff.setFillColor(sf::Color(220, 220, 220));
                 btnTurnedOff.setScale(sf::Vector2f(1.05f, 1.05f));
             }
@@ -907,7 +914,7 @@ int main() {
                 btnTurnedOff.setFillColor(sf::Color::White);
                 btnTurnedOff.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            if (btnQuiet.getGlobalBounds().contains(mousePos)) {
+            if (btnQuiet.getGlobalBounds().contains(mousePos) && music != 1) {
                 btnQuiet.setFillColor(sf::Color(220, 220, 220));
                 btnQuiet.setScale(sf::Vector2f(1.05f, 1.05f));
             }
@@ -915,7 +922,7 @@ int main() {
                 btnQuiet.setFillColor(sf::Color::White);
                 btnQuiet.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            if (btnMedium.getGlobalBounds().contains(mousePos)) {
+            if (btnMedium.getGlobalBounds().contains(mousePos) && music != 2) {
                 btnMedium.setFillColor(sf::Color(220, 220, 220));
                 btnMedium.setScale(sf::Vector2f(1.05f, 1.05f));
             }
@@ -923,7 +930,7 @@ int main() {
                 btnMedium.setFillColor(sf::Color::White);
                 btnMedium.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            if (btnLoud.getGlobalBounds().contains(mousePos)) {
+            if (btnLoud.getGlobalBounds().contains(mousePos) && music != 3) {
                 btnLoud.setFillColor(sf::Color(220, 220, 220));
                 btnLoud.setScale(sf::Vector2f(1.05f, 1.05f));
             }
@@ -931,7 +938,7 @@ int main() {
                 btnLoud.setFillColor(sf::Color::White);
                 btnLoud.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            if (btnWSAD.getGlobalBounds().contains(mousePos)) {
+            if (btnWSAD.getGlobalBounds().contains(mousePos) && controls != 0) {
                 btnWSAD.setFillColor(sf::Color(220, 220, 220));
                 btnWSAD.setScale(sf::Vector2f(1.05f, 1.05f));
             }
@@ -939,13 +946,39 @@ int main() {
                 btnWSAD.setFillColor(sf::Color::White);
                 btnWSAD.setScale(sf::Vector2f(1.0f, 1.0f));
             }
-            if (btnArrows.getGlobalBounds().contains(mousePos)) {
+            if (btnArrows.getGlobalBounds().contains(mousePos) && controls != 1) {
                 btnArrows.setFillColor(sf::Color(220, 220, 220));
                 btnArrows.setScale(sf::Vector2f(1.05f, 1.05f));
             }
             else {
                 btnArrows.setFillColor(sf::Color::White);
                 btnArrows.setScale(sf::Vector2f(1.0f, 1.0f));
+            }
+
+            if (music == 0) {
+                btnTurnedOff.setFillColor(sf::Color(180, 180, 180));
+                btnTurnedOff.setScale(sf::Vector2f(.90f, .90f));
+            }
+            else if (music == 1) {
+                btnQuiet.setFillColor(sf::Color(180, 180, 180));
+                btnQuiet.setScale(sf::Vector2f(.90f, .90f));
+            }
+            else if (music == 2) {
+                btnMedium.setFillColor(sf::Color(180, 180, 180));
+                btnMedium.setScale(sf::Vector2f(.90f, .90f));
+            }
+            else if (music == 3) {
+                btnLoud.setFillColor(sf::Color(180, 180, 180));
+                btnLoud.setScale(sf::Vector2f(.90f, .90f));
+            }
+
+            if (controls == 0) {
+                btnWSAD.setFillColor(sf::Color(180, 180, 180));
+                btnWSAD.setScale(sf::Vector2f(.90f, .90f));
+            }
+            else if (controls == 1) {
+                btnArrows.setFillColor(sf::Color(180, 180, 180));
+                btnArrows.setScale(sf::Vector2f(.90f, .90f));
             }
         }
 
@@ -1119,11 +1152,8 @@ int main() {
         }
         else if (aktualnyStan == Stan::LEVEL) {
             window.draw(btnLvl1);
-            //window.draw(textLvl1);
             window.draw(btnLvl2);
-            //window.draw(textLvl2);
             window.draw(btnLvl3);
-            //window.draw(textLvl3);
             window.draw(btnLvlBack);
         }
         else if (aktualnyStan == Stan::GRA) {
