@@ -131,6 +131,12 @@ int main() {
     sf::RenderWindow window(sf::VideoMode({ szerokosc, wysokosc }), "AGHnoid");
     window.setFramerateLimit(60);
 
+    sf::Image icon;
+    if (icon.loadFromFile("Sprites/aghnoid.png")) {
+        // W SFML 3.0 wystarczy podać sam obiekt:
+        window.setIcon(icon);
+    }
+
     Stan aktualnyStan = Stan::MENU;
 
     // --- POWER UPY ---
