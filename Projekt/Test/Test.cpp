@@ -539,7 +539,6 @@ int main() {
     ScoreText.setFillColor(sf::Color(0xb0, 0x10, 0x28));
     ScoreText.setOutlineColor(sf::Color::Black);
     ScoreText.setOutlineThickness(5.0f);
-    ScoreText.setPosition(sf::Vector2f(szerokosc / 2 - 85.f, wysokosc / 2 - 90.f));
     ScoreText.setString("Score: " + std::to_string(score));
 
     sf::Text xpText(PixelFont);
@@ -618,6 +617,7 @@ int main() {
         combo = 0;
         combosum = 0;
         comboTempMax = 0;
+        score = 0;
         kulka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc / 2.f + 50.f));
         paletka.setPosition(sf::Vector2f(szerokosc / 2.f, wysokosc - 40.f));
         predkosc = sf::Vector2f(0.f, 0.f);
@@ -1110,7 +1110,7 @@ int main() {
 
                     combosum += comboTempMax;
                     xpsum = points + (2 * combosum);
-                    score = (points * 100) + (10 * combosum);
+                    score = (points * 100) + (5 * level * combosum);
                     addXP(player, xpsum);
                     if (score > player.highScore) player.highScore = score;
                     saveGame(player);
@@ -1124,7 +1124,7 @@ int main() {
 
                     combosum += comboTempMax;
                     xpsum = points + (2 * combosum);
-                    score = (points * 100) + (10 * combosum);
+                    score = (points * 100) + (5 * level * combosum);
                     addXP(player, xpsum);
                     if (score > player.highScore) player.highScore = score;
                     saveGame(player);
@@ -1136,6 +1136,8 @@ int main() {
                     combo = 0;
                     combosum += comboTempMax;
                     comboTempMax = 0;
+                    score = (points * 100) + (5 * level * combosum);
+                    ScoreText.setString("Score: " + std::to_string(score));
                     float kat;
 
                     if (ruchX == 0) {
@@ -1201,7 +1203,7 @@ int main() {
 
                         combosum += comboTempMax;
                         xpsum = points + (2 * combosum);
-                        score = (points * 100) + (10 * combosum);
+                        score = (points * 100) + (5 * level * combosum);
                         addXP(player, xpsum);
                         if (score > player.highScore) player.highScore = score;
                         saveGame(player);
@@ -1236,7 +1238,7 @@ int main() {
             float percent = static_cast<float>(player.xp) / player.xpToNext;
             percent = std::clamp(percent, 0.f, 1.f);
             xpBarFill.setSize(sf::Vector2f(300.f * percent, 20.f));
-            levelText.setString("LEVEL " + std::to_string(level));
+            levelText.setString("LEVEL " + std::to_string(player.level));
             HighscoreText.setString("Highscore: " + std::to_string(player.highScore));
             window.draw(titleSprite);
             window.draw(btnPlay);
@@ -1271,6 +1273,8 @@ int main() {
             for (const auto& b : bloczki) if (!b.zniszczony) window.draw(b.shape);
             for (const auto& pow : power) if (!pow.used) window.draw(pow.shape);
             window.draw(kulka);
+            ScoreText.setPosition(sf::Vector2f(10.f, wysokosc - 50.f));
+            window.draw(ScoreText);
             if (combo >= 3)
             {
                 comboTempMax = combo;
@@ -1290,6 +1294,7 @@ int main() {
             window.draw(btnPauseExit);
         }
         else if (aktualnyStan == Stan::LOSE) {
+            ScoreText.setPosition(sf::Vector2f(szerokosc / 2 - 85.f, wysokosc / 2 - 90.f));
             ScoreText.setString("Score: " + std::to_string(score));
             xpText.setString("XP gained: " + std::to_string(xpsum));
             window.draw(dimmer);
@@ -1300,6 +1305,7 @@ int main() {
             window.draw(xpText);
         }
         else if (aktualnyStan == Stan::WIN) {
+            ScoreText.setPosition(sf::Vector2f(szerokosc / 2 - 85.f, wysokosc / 2 - 90.f));
             ScoreText.setString("Score: " + std::to_string(score));
             xpText.setString("XP gained: " + std::to_string(xpsum));
             window.draw(dimmer);
@@ -1314,4 +1320,3 @@ int main() {
     }
     return 0;
 }
-
